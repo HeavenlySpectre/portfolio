@@ -61,6 +61,11 @@ Shown on the website under "Expertise", in this order, without notes.
 - Telegram Bot API
 - Celery
 - Redis
+- Prefect
+- Uvicorn
+- HTTPX
+- Feedparser
+- Trafilatura
 
 ## Frontend
 

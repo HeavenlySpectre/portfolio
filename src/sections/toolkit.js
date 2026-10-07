@@ -7,7 +7,7 @@ import {
   siDocker, siGit, siGithubactions, siKubernetes, siLinux, siMlflow, siGooglecloud, siDigitalocean, siVercel,
   siNetlify, siDatacamp, siUdemy,
   siLanggraph, siModelcontextprotocol, siGooglegemini, siApacheairflow, siApachehadoop, siGooglebigquery, siMinio,
-  siStreamlit, siGradio, siJavascript, siHtml5, siCss, siNodedotjs, siExpress, siVite, siYaml,
+  siStreamlit, siGradio, siJavascript, siHtml5, siCss, siNodedotjs, siExpress, siVite, siYaml, siPrefect,
 } from 'simple-icons';
 // Custom single-colour SVGs (fill="currentColor"), inlined at build time.
 import openaiSvg from '../assets/icons/openai.svg?raw';
@@ -30,7 +30,7 @@ const ICONS = {
   langgraph: siLanggraph, modelcontextprotocol: siModelcontextprotocol, googlegemini: siGooglegemini,
   apacheairflow: siApacheairflow, apachehadoop: siApachehadoop, googlebigquery: siGooglebigquery, minio: siMinio,
   streamlit: siStreamlit, gradio: siGradio, javascript: siJavascript, html5: siHtml5, css: siCss,
-  nodedotjs: siNodedotjs, express: siExpress, vite: siVite, yaml: siYaml,
+  nodedotjs: siNodedotjs, express: siExpress, vite: siVite, yaml: siYaml, prefect: siPrefect,
 };
 const RAW = { openai: openaiSvg, llamaindex: llamaindexSvg, unsloth: unslothSvg, aws: awsSvg, chroma: chromaSvg, langsmith: langsmithSvg };
 

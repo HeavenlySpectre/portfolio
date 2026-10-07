@@ -18,6 +18,11 @@ Category: AI Engineering, Retrieval-Augmented Generation, Full-Stack Development
 
 An internal knowledge assistant that retrieves relevant information from document collections and generates grounded answers using hybrid retrieval, reranking, and locally managed language-model inference.
 
+### Result
+
+- 86.67% Context Recall
+- 78.89% Context Precision
+
 ### Publicly shareable technologies
 
 - Python
@@ -38,6 +43,10 @@ Category: AI Engineering, Text-to-SQL, Business Intelligence
 ### overview
 
 A conversational data assistant that transforms Bahasa Indonesia business questions into read-only SQL queries and returns structured insights through a Telegram interface.
+
+### Result
+
+- 100% query execution success on hard-level test cases
 
 ### Publicly shareable technologies
 
