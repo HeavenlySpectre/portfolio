@@ -4,5 +4,10 @@
   "assets": {
     "directory": "./dist",
     "not_found_handling": "404-page"
-  }
+  },
+  // Attaches the apex domain on deploy. www.kevinanugerah.dev is redirected
+  // to the apex by a Cloudflare Redirect Rule (dashboard), not by this Worker.
+  "routes": [
+    { "pattern": "kevinanugerah.dev", "custom_domain": true }
+  ]
 }
