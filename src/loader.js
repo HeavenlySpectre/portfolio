@@ -2,8 +2,8 @@ import { gsap } from 'gsap';
 import { $, $$, clamp } from './lib.js';
 
 const FG = '242,242,240';
-const ACC = '#ff5a1f';
-const ACC_RGB = '255,90,31';
+const ACC = '#4ade80';
+const ACC_RGB = '74,222,128';
 const N = 100;
 
 const ss = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
