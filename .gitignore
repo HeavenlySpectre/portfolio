@@ -1,0 +1,15 @@
+node_modules
+dist
+.wrangler
+.DS_Store
+*.log
+.env
+.env.*
+
+# Local-only files (not part of the site)
+install-claude-skills.ps1
+.claude/
+
+# CV source files: only the redacted public copy is committed (see docs/content/contact.md)
+public/media/documents/*.pdf
+!public/media/documents/kevin-anugerah-faza-cv.pdf
