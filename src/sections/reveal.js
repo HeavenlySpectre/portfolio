@@ -9,14 +9,16 @@ export function initReveal({ reduced }) {
   if (reduced) return; // everything stays visible and final
 
   $$('[data-reveal]').forEach((el) => {
-    onView(el, () => {
+    onView(el, (past) => {
       el.classList.add('is-in');
+      if (past) return;
       gsap.fromTo(el, { opacity: 0, y: 36 }, { opacity: 1, y: 0, duration: 1.2, ease: 'expo.out', clearProps: 'opacity,transform' });
     });
   });
 
-  // Counters play once on entry (never scrubbed). Decimal scores "decode": digits settle left to right
-  // instead of counting through plausible-looking wrong numbers.
+  // Counters play once on entry (never scrubbed). The real value stays in the DOM until the animation
+  // actually starts, so if the trigger never fires (jump, crawler, anything) the true numbers remain.
+  // Decimal scores "decode": digits settle left to right instead of counting through wrong numbers.
   $$('[data-count]').forEach((el) => {
     const to = parseFloat(el.dataset.count);
     const dec = parseInt(el.dataset.decimals || '0', 10);
@@ -24,27 +26,27 @@ export function initReveal({ reduced }) {
     const suf = el.dataset.suffix || '';
     const final = pre + to.toFixed(dec) + suf;
     const o = { v: 0 };
-    el.textContent = pre + (0).toFixed(dec) + suf;
-    const run = dec > 0
-      ? () => {
-          const digitIdx = [...final].map((c, i) => (/\d/.test(c) ? i : -1)).filter((i) => i >= 0);
-          gsap.to(o, {
-            v: 1, duration: 1.0, ease: 'power2.out',
-            onUpdate: () => {
-              const settled = Math.floor(o.v * (digitIdx.length + 0.001));
-              el.textContent = [...final].map((c, i) => {
-                const k = digitIdx.indexOf(i);
-                return k === -1 || k < settled ? c : String(Math.floor(Math.random() * 10));
-              }).join('');
-            },
-            onComplete: () => { el.textContent = final; },
-          });
-        }
-      : () => gsap.to(o, {
-          v: to, duration: 1.1, ease: 'power3.out',
-          onUpdate: () => { el.textContent = pre + Math.round(o.v) + suf; },
-          onComplete: () => { el.textContent = final; },
-        });
-    onView(el, run, '0px 0px -15% 0px');
+    const decode = () => {
+      const digitIdx = [...final].map((c, k) => (/\d/.test(c) ? k : -1)).filter((k) => k >= 0);
+      const scramble = (settled) => [...final].map((c, k) => {
+        const n = digitIdx.indexOf(k);
+        return n === -1 || n < settled ? c : String(Math.floor(Math.random() * 10));
+      }).join('');
+      el.textContent = scramble(0);
+      gsap.to(o, {
+        v: 1, duration: 1.0, ease: 'power2.out',
+        onUpdate: () => { el.textContent = scramble(Math.floor(o.v * (digitIdx.length + 0.001))); },
+        onComplete: () => { el.textContent = final; },
+      });
+    };
+    const count = () => {
+      el.textContent = pre + '0' + suf;
+      gsap.to(o, {
+        v: to, duration: 1.1, ease: 'power3.out',
+        onUpdate: () => { el.textContent = pre + Math.round(o.v) + suf; },
+        onComplete: () => { el.textContent = final; },
+      });
+    };
+    onView(el, (past) => { if (!past) (dec > 0 ? decode : count)(); }, '0px 0px -8% 0px');
   });
 }

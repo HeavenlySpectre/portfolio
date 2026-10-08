@@ -97,7 +97,9 @@
 .ach--gold .ach__glow { background: radial-gradient(circle, var(--gold-b), transparent 65%); }
 .ach--bronze .ach__glow { background: radial-gradient(circle, var(--bronze-b), transparent 65%); }
 .ach__ord { font-size: clamp(6.9rem, 13vw, 11.9rem); line-height: 0.8; letter-spacing: -0.07em; margin-bottom: 12px; -webkit-background-clip: text; background-clip: text; color: transparent; }
-.ach__ord sup { font-size: 0.42em; vertical-align: top; position: relative; top: 0.08em; letter-spacing: -0.03em; }
+/* Ordinal drawn with generated content so text extractors do not read "1st 1st Place". */
+.ach__ord::before { content: attr(data-n); }
+.ach__ord::after { content: attr(data-suf); font-size: 0.42em; vertical-align: top; position: relative; top: 0.08em; letter-spacing: -0.03em; }
 .ach--gold .ach__ord { background-image: linear-gradient(160deg, var(--gold-a), var(--gold-b) 70%); }
 .ach--bronze .ach__ord { background-image: linear-gradient(160deg, var(--bronze-a), var(--bronze-b) 70%); }
 .ach__kicker, .ach__cat { color: var(--dim); }

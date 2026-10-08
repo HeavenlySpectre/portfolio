@@ -12,7 +12,11 @@ export function debounce(fn, ms = 200) {
   };
 }
 
-/** Runs fn once when el gets within `margin` of the viewport (shared observers, one per margin). */
+/**
+ * Runs cb(past) once when el gets within `margin` of the viewport (shared observers, one per margin).
+ * If el is already above the viewport when first observed (jumped past), cb(true) runs instead so the
+ * caller can show the final state without animating.
+ */
 const observers = new Map();
 export function onView(el, cb, margin = '0px 0px -10% 0px') {
   let io = observers.get(margin);
@@ -20,10 +24,11 @@ export function onView(el, cb, margin = '0px 0px -10% 0px') {
     const cbs = new WeakMap();
     io = new IntersectionObserver((entries) => {
       for (const e of entries) {
-        if (!e.isIntersecting) continue;
+        const past = !e.isIntersecting && e.rootBounds && e.boundingClientRect.bottom <= e.rootBounds.top;
+        if (!e.isIntersecting && !past) continue;
         io.unobserve(e.target);
         const fn = cbs.get(e.target);
-        if (fn) fn();
+        if (fn) fn(past);
       }
     }, { rootMargin: margin });
     io._cbs = cbs;

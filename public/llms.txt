@@ -1,6 +1,6 @@
 # Kevin Anugerah Faza
 
-> Kevin Anugerah Faza (also known as Kevin Anugerah) is an AI/ML Engineer based in Surabaya, Indonesia. He works across AI engineering, data science and data engineering, from modeling to infrastructure, with a focus on retrieval-augmented generation (RAG), large language models, agentic AI and LLM evaluation. He studies Information Technology (Bachelor of Computer Science) at Institut Teknologi Sepuluh Nopember (ITS), 2023–2027 (expected), GPA 3.80/4.00.
+> Kevin Anugerah Faza (also known as Kevin Anugerah) is an AI/ML Engineer based in Surabaya, Indonesia. He builds AI systems end to end, from models to the infrastructure that runs them, with a focus on retrieval-augmented generation (RAG), large language models, agentic AI and LLM evaluation. He studies Information Technology (Bachelor of Computer Science) at Institut Teknologi Sepuluh Nopember (ITS), 2023–2027 (expected), GPA 3.80/4.00.
 
 - Website: https://kevinanugerah.dev/
 - Email: kevinanugerahf@gmail.com
