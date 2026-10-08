@@ -14,7 +14,7 @@ export function createParticles(canvas, { reduced = false } = {}) {
   const mouse = { x: -9999, y: -9999 };
 
   function build() {
-    const n = w < 768 ? 160 : w < 1200 ? 280 : 360;
+    const n = w < 768 ? 110 : w < 1200 ? 280 : 360;
     pts = Array.from({ length: n }, () => ({
       x: Math.random(), y: Math.random(), ph: Math.random() * 6.28, sp: 0.3 + Math.random() * 0.5,
       delay: Math.random() * 0.4, ox: 0, oy: 0, vx: 0, vy: 0, r: 0.9 + Math.random() * 0.7,

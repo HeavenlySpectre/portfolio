@@ -29,19 +29,28 @@ export function initExperience({ reduced }) {
     dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     R = mobile ? 0 : Math.min(host.clientWidth * 0.085, 100);
     W = mobile ? 40 : Math.round(R * 2 + 56);
+    // all layout reads first (offsetTop/offsetHeight are unaffected by the cards' reveal transforms)...
     H = host.offsetHeight;
-    cv.style.width = W + 'px';
-    cv.style.height = H + 'px';
-    cv.width = Math.round(W * dpr);
-    cv.height = Math.round(H * dpr);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    // offsetTop/offsetHeight are unaffected by the cards' reveal transforms
     ys = cards.map((c) => c.offsetTop + 30);
     endY = end.offsetTop;
     totalY = mobile ? ys[ys.length - 1] : endY;
     // coil radius decays over the whole length, reaching zero just above the lecturer card
     convLen = Math.max(1, totalY - TOP - 28);
+    // ...then the canvas writes
+    cv.style.width = W + 'px';
+    cv.style.height = H + 'px';
+    cv.width = Math.round(W * dpr);
+    cv.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    // If the section is already above the viewport (jump / re-measure), the line is complete.
+    if (!reduced && host.getBoundingClientRect().bottom < 0) snapToEnd();
     if (reduced) { reach = totalY; draw(0); setCards(); }
+  }
+
+  function snapToEnd() {
+    reach = totalY;
+    setCards();
+    draw(gsap.ticker.time);
   }
 
   function setCards() {
@@ -98,14 +107,19 @@ export function initExperience({ reduced }) {
   ScrollTrigger.create({
     trigger: host, start: 'top bottom', end: 'bottom top',
     onToggle: (s) => { visible = s.isActive; },
+    // Scrolled (or jumped) past the section: the eased loop never ran to the end, so complete it now.
+    onLeave: snapToEnd,
   });
 
   gsap.ticker.add((time) => {
     if (!visible) return;
     const rect = host.getBoundingClientRect();
     const target = clamp(window.innerHeight * 0.62 - rect.top, 0, totalY);
-    reach += (target - reach) * 0.1;
-    if (Math.abs(target - reach) < 0.3) reach = target;
+    // Once revealed, stay revealed (scrolling back up never un-draws the line or hides cards).
+    if (target > reach) {
+      reach += (target - reach) * 0.1;
+      if (target - reach < 0.3) reach = target;
+    }
     setCards();
     draw(time);
   });

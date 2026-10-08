@@ -12,6 +12,36 @@ export function debounce(fn, ms = 200) {
   };
 }
 
+/** Runs fn once when el gets within `margin` of the viewport (shared observers, one per margin). */
+const observers = new Map();
+export function onView(el, cb, margin = '0px 0px -10% 0px') {
+  let io = observers.get(margin);
+  if (!io) {
+    const cbs = new WeakMap();
+    io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (!e.isIntersecting) continue;
+        io.unobserve(e.target);
+        const fn = cbs.get(e.target);
+        if (fn) fn();
+      }
+    }, { rootMargin: margin });
+    io._cbs = cbs;
+    observers.set(margin, io);
+  }
+  io._cbs.set(el, cb);
+  io.observe(el);
+}
+
+/** Runs fn in an idle slice (falls back to a short timeout); resolves when it has run. */
+export function idle(fn) {
+  return new Promise((resolve) => {
+    const run = () => { try { fn(); } finally { resolve(); } };
+    if ('requestIdleCallback' in window) window.requestIdleCallback(run, { timeout: 300 });
+    else setTimeout(run, 16);
+  });
+}
+
 export const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 export const lerp = (a, b, t) => a + (b - a) * t;
 export const smoothstep = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };

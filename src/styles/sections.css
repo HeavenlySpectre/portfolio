@@ -47,10 +47,10 @@
 .xcard {
   position: relative; width: calc(50% - 130px); padding: 20px 22px; border-radius: 12px;
   background: var(--raised); border: 1px solid rgba(242, 242, 240, 0.06);
-  opacity: 0; transform: translateY(18px) scale(0.98);
-  transition: opacity 0.9s var(--ease), transform 1s var(--ease);
 }
-.xcard.on { opacity: 1; transform: none; }
+/* Reveal state only when JS runs (and motion is allowed): without JS every card is simply visible */
+.js:not(.is-reduced) .xcard { opacity: 0; transform: translateY(18px) scale(0.98); transition: opacity 0.9s var(--ease), transform 1s var(--ease); }
+.js:not(.is-reduced) .xcard.on { opacity: 1; transform: none; }
 .xcard.l { justify-self: start; }
 .xcard.r { justify-self: end; }
 .xcard::after { content: ''; position: absolute; top: 30px; width: 34px; height: 1px; background: var(--line); }

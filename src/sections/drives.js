@@ -25,24 +25,27 @@ export function initDrives({ reduced }) {
   if (!qs.length) return;
 
   const blurMax = () => (window.innerWidth < 768 ? 6 : 10);
-  let p = 0, visible = false;
+  let p = 0, visible = false, ready = false;
 
   const render = () => {
     const r = sec.getBoundingClientRect(), vh = window.innerHeight;
-    const target = clamp(-r.top / Math.max(1, r.height - vh), 0, 1);
+    // Slightly negative progress while the stage scrolls into view lets principle 1 pop in before the stage sticks.
+    const target = clamp(-r.top / Math.max(1, r.height - vh), -0.12, 1);
+    if (!ready) { p = target; ready = true; } // snap on the first render so nothing starts mid-fade
     p += (target - p) * 0.12;
     if (Math.abs(target - p) < 0.0004) p = target;
     const P = p * 3, B = blurMax(), B2 = B * 0.8;
-    dots.forEach((d, i) => d.classList.toggle('on', Math.floor(Math.min(P, 2.999)) === i));
+    dots.forEach((d, i) => d.classList.toggle('on', Math.floor(clamp(P, 0, 2.999)) === i));
 
     qs.forEach(({ el, m }, i) => {
       const t = P - i, last = i === 2;
-      const hidden = t < -0.05 || (!last && t > 1);
+      const lead = i === 0 ? 0.355 : 0.05;
+      const hidden = t < -lead || (!last && t > 1);
       el.style.visibility = hidden ? 'hidden' : 'visible';
       if (hidden) return;
       let sc, op, bl, mo;
       if (!last) {
-        const inT = range(t, -0.05, 0.35), outT = range(t, 0.72, 1.0);
+        const inT = i === 0 ? range(t, -0.35, 0) : range(t, -0.05, 0.35), outT = range(t, 0.72, 1.0);
         sc = lerp(0.82, 1, backOut(inT)) * lerp(1, 1.12, easeIn(outT));
         op = Math.min(easeOut(inT), 1 - outT);
         bl = lerp(B, 0, easeOut(inT)) + lerp(0, B2, outT);

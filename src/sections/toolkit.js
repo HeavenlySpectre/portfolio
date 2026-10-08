@@ -1,5 +1,5 @@
 import { gsap } from 'gsap';
-import { $$ } from '../lib.js';
+import { $$, onView } from '../lib.js';
 import {
   siPython, siTypescript, siCplusplus, siGnubash, siPandas, siNumpy, siPytorch, siScikitlearn, siHuggingface,
   siLangchain, siOllama, siVllm, siLmstudio, siFastapi, siTelegram, siCelery, siRedis, siNextdotjs, siReact,
@@ -82,18 +82,11 @@ export function initToolkit({ reduced }) {
   $$('.tool__logo[data-mono]:not([data-icon])').forEach((host) => { host.textContent = host.dataset.mono || ''; host.classList.add('is-mono'); });
 
   if (reduced) return;
-  const focus = $$('.focus li');
-  if (focus.length) {
-    gsap.from(focus, {
-      opacity: 0, y: 22, duration: 0.8, ease: 'power3.out', stagger: 0.05,
-      scrollTrigger: { trigger: '.focus', start: 'top 88%', toggleActions: 'play none none none' },
-    });
-  }
-  $$('[data-kitrow]').forEach((row) => {
-    const items = row.querySelectorAll('.tool, .chip');
-    gsap.from(items, {
-      opacity: 0, y: 16, duration: 0.6, ease: 'power3.out', stagger: 0.035, clearProps: 'opacity,transform',
-      scrollTrigger: { trigger: row, start: 'top 88%', toggleActions: 'play none none none' },
-    });
-  });
+  const rise = (container, items, y, dur, stagger) => onView(container, () => {
+    container.classList.add('is-in');
+    gsap.fromTo(items, { opacity: 0, y }, { opacity: 1, y: 0, duration: dur, ease: 'power3.out', stagger, clearProps: 'opacity,transform' });
+  }, '0px 0px -12% 0px');
+  const focus = $$('.focus')[0];
+  if (focus) rise(focus, $$('li', focus), 22, 0.8, 0.05);
+  $$('[data-kitrow]').forEach((row) => rise(row, $$('.tool, .chip', row), 16, 0.6, 0.035));
 }

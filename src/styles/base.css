@@ -1,12 +1,12 @@
 :root {
   --bg: #1f1f1f;
   --fg: #f2f2f0;
-  --dim: rgba(242, 242, 240, 0.5);
+  --dim: rgba(242, 242, 240, 0.55);
   --line: rgba(242, 242, 240, 0.14);
   --raised: #272727;
   --panel: #f2f2f0;
   --panel-fg: #111111;
-  --panel-dim: rgba(17, 17, 17, 0.58);
+  --panel-dim: rgba(17, 17, 17, 0.64);
   --panel-line: rgba(17, 17, 17, 0.16);
   --signal: #4ade80;
 
@@ -122,10 +122,12 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .nav.is-hidden { transform: translateY(-110%); }
 .nav__mark { font-size: 15px; font-weight: 500; letter-spacing: -0.02em; }
 .nav__short { display: none; }
+.nav__sr { display: none; }
 .nav__links { display: flex; gap: clamp(16px, 2.6vw, 38px); font-size: 14px; }
 @media (max-width: 560px) {
   .nav__full { display: none; }
   .nav__short { display: inline; }
+  .nav__sr { display: inline; }
   .nav__links { gap: 16px; font-size: 13px; }
 }
 
@@ -144,6 +146,12 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .cursor.is-on .cursor__ring { opacity: 0.9; }
   .cursor.is-hover .cursor__ring { width: 44px; height: 44px; margin: -22px 0 0 -22px; }
 }
+
+/* Reveal initial states: CSS only (class .js is removed if the app script fails), revealed on view */
+.js:not(.is-reduced) [data-reveal]:not(.is-in) { opacity: 0; transform: translateY(36px); }
+.js:not(.is-reduced) .focus:not(.is-in) li { opacity: 0; transform: translateY(22px); }
+.js:not(.is-reduced) .kit__row:not(.is-in) .tool,
+.js:not(.is-reduced) .kit__row:not(.is-in) .chip { opacity: 0; transform: translateY(16px); }
 
 .mask { display: block; overflow: hidden; }
 .mask > span { display: block; }

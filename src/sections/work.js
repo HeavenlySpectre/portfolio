@@ -6,8 +6,8 @@ import { buildSpecimen } from './specimens.js';
  * Selected Work: rows fade/slide in as they enter and fade/scale out as they leave (scrubbed),
  * and each SVG specimen draws itself in.
  */
-export function initWork({ reduced }) {
-  $$('[data-project]').forEach((project) => {
+export function workSteps({ reduced }) {
+  return $$('[data-project]').map((project) => () => {
     const inner = $('.project__in', project);
     const host = $('[data-specimen]', project);
     const svg = host ? buildSpecimen(host) : null; // host element holding both variants

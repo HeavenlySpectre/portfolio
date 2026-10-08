@@ -110,7 +110,7 @@ export async function runLoader({ reduced, fonts, prepare, reveal }) {
 
   const MIN = 2.4;
   const t0 = performance.now();
-  let progress = 0, completeAt = null, prepared = false, exited = false, blockDy = 0;
+  let progress = 0, completeAt = null, prepared = false, exited = false, blockDy = 0, prepP = Promise.resolve();
 
   await new Promise((resolve) => {
     const tick = () => {
@@ -190,7 +190,7 @@ export async function runLoader({ reduced, fonts, prepare, reveal }) {
       ctx.globalAlpha = 1;
 
       if (completeAt !== null) {
-        if (!prepared) { prepared = true; Promise.resolve(prepare()); }
+        if (!prepared) { prepared = true; prepP = Promise.resolve(prepare()); }
         const a = ss(0.55, 1.1, after), dy = (1 - easeOut(a)) * 26 * s;
         ctx.globalAlpha = a;
         T('Welcome.', W / 2, H / 2 + 20 * s + dy, 78 * s, `rgb(${FG})`, 500, 'Inter Tight', 'center');
@@ -204,6 +204,7 @@ export async function runLoader({ reduced, fonts, prepare, reveal }) {
   });
 
   window.removeEventListener('resize', fit);
+  await prepP;
   const tl = gsap.timeline({ onComplete: done });
   tl.to(cv, { opacity: 0, duration: 0.5, ease: 'power2.out' })
     .to(shutters, { yPercent: -101, duration: 1.1, ease: 'expo.inOut', stagger: { each: 0.06, from: 'edges' } }, 0.1)

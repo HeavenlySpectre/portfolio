@@ -8,3 +8,12 @@
 
 /media/*
   Cache-Control: public, max-age=604800
+
+/
+  Content-Type: text/html; charset=utf-8
+
+/index.html
+  Content-Type: text/html; charset=utf-8
+
+/404.html
+  Content-Type: text/html; charset=utf-8

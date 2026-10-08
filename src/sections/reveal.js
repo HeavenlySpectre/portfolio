@@ -1,15 +1,17 @@
 import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { $$ } from '../lib.js';
+import { $$, onView } from '../lib.js';
 
-/** Generic [data-reveal] fade-up (once) and count-up numbers (once, <= 1.2s, ending on the doc value). */
+/**
+ * Generic [data-reveal] fade-up (once) and count-up numbers (once, <= 1.2s, ending on the doc value).
+ * Uses a shared IntersectionObserver rather than one ScrollTrigger per element.
+ */
 export function initReveal({ reduced }) {
   if (reduced) return; // everything stays visible and final
 
   $$('[data-reveal]').forEach((el) => {
-    gsap.from(el, {
-      y: 36, opacity: 0, duration: 1.2, ease: 'expo.out',
-      scrollTrigger: { trigger: el, start: 'top 90%', toggleActions: 'play none none none' },
+    onView(el, () => {
+      el.classList.add('is-in');
+      gsap.fromTo(el, { opacity: 0, y: 36 }, { opacity: 1, y: 0, duration: 1.2, ease: 'expo.out', clearProps: 'opacity,transform' });
     });
   });
 
@@ -26,7 +28,7 @@ export function initReveal({ reduced }) {
     const run = dec > 0
       ? () => {
           const digitIdx = [...final].map((c, i) => (/\d/.test(c) ? i : -1)).filter((i) => i >= 0);
-          return gsap.to(o, {
+          gsap.to(o, {
             v: 1, duration: 1.0, ease: 'power2.out',
             onUpdate: () => {
               const settled = Math.floor(o.v * (digitIdx.length + 0.001));
@@ -43,6 +45,6 @@ export function initReveal({ reduced }) {
           onUpdate: () => { el.textContent = pre + Math.round(o.v) + suf; },
           onComplete: () => { el.textContent = final; },
         });
-    ScrollTrigger.create({ trigger: el, start: 'top 85%', once: true, onEnter: run });
+    onView(el, run, '0px 0px -15% 0px');
   });
 }

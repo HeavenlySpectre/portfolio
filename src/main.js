@@ -5,9 +5,8 @@ import './styles/sections.css';
 
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { SplitText } from 'gsap/SplitText';
 
-import { $, reducedQuery, fontLoader } from './lib.js';
+import { $, reducedQuery, fontLoader, idle } from './lib.js';
 import { initScroll } from './scroll.js';
 import { initCursor } from './cursor.js';
 import { createParticles } from './particles.js';
@@ -15,13 +14,13 @@ import { runLoader } from './loader.js';
 import { initClock } from './sections/clock.js';
 import { initHero } from './sections/hero.js';
 import { initDrives } from './sections/drives.js';
-import { initWork } from './sections/work.js';
+import { workSteps } from './sections/work.js';
 import { initExperience } from './sections/experience.js';
 import { initReveal } from './sections/reveal.js';
 import { initToolkit } from './sections/toolkit.js';
 import { initContact } from './sections/contact.js';
 
-gsap.registerPlugin(ScrollTrigger, SplitText);
+gsap.registerPlugin(ScrollTrigger);
 ScrollTrigger.config({ ignoreMobileResize: true });
 
 // Reduced motion comes only from the user's prefers-reduced-motion setting.
@@ -42,15 +41,24 @@ function boot() {
 
   let heroIntro = () => {};
 
+  // Section set-up is split into small idle-time tasks that start immediately, so it runs while the
+  // loader plays (no single long task) and is finished by the time the loader completes.
+  const steps = [
+    () => { heroIntro = initHero({ reduced, particles }); },
+    () => initDrives({ reduced }),
+    () => initToolkit({ reduced }),
+    ...workSteps({ reduced }),
+    () => initExperience({ reduced }),
+    () => initReveal({ reduced }),
+    () => initContact({ reduced, scrollTo: scroll.scrollTo }),
+  ];
+  const prepared = (async () => {
+    for (const step of steps) await idle(step);
+  })();
+
+  // Called by the loader once fonts are loaded: wait for the set-up, then measure once.
   const prepare = async () => {
-    // Runs while the loader still covers the page and fonts are loaded, so measurements are final.
-    heroIntro = initHero({ reduced, particles });
-    initDrives({ reduced });
-    initWork({ reduced });
-    initExperience({ reduced });
-    initReveal({ reduced });
-    initToolkit({ reduced });
-    initContact({ reduced, scrollTo: scroll.scrollTo });
+    await prepared;
     ScrollTrigger.refresh();
   };
 
@@ -61,14 +69,11 @@ function boot() {
     reveal: (instant) => heroIntro(instant),
   }).then(() => {
     if (scroll.lenis) scroll.lenis.start();
-    ScrollTrigger.refresh();
     window.__ready = true;
   });
 
   // Mark ready as soon as the app is wired so the no-JS fail-safe never triggers on slow font loads.
   window.__ready = true;
-
-  window.addEventListener('load', () => ScrollTrigger.refresh());
 }
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
