@@ -1,0 +1,41 @@
+# Kevin Anugerah Faza
+
+> Kevin Anugerah Faza (also known as Kevin Anugerah) is an AI/ML Engineer based in Surabaya, Indonesia. He works across AI engineering, data science and data engineering, from modeling to infrastructure, with a focus on retrieval-augmented generation (RAG), large language models, agentic AI and LLM evaluation. He studies Information Technology (Bachelor of Computer Science) at Institut Teknologi Sepuluh Nopember (ITS), 2023–2027 (expected), GPA 3.80/4.00.
+
+- Website: https://kevinanugerah.dev/
+- Email: kevinanugerahf@gmail.com
+- LinkedIn: https://www.linkedin.com/in/kevinangrfz/
+- GitHub: https://github.com/HeavenlySpectre
+- Kaggle: https://www.kaggle.com/kevinanugerah
+- CV (PDF): https://kevinanugerah.dev/media/documents/kevin-anugerah-faza-cv.pdf
+
+## Experience
+
+- AI Developer Intern, AI Top Trends (Aug 2026 – present): built an evidence-driven AI news intelligence pipeline with source ingestion, deduplication, story clustering, claim/evidence validation, provenance tracking and validation status gates; generates validated Bahasa Indonesia daily summaries.
+- Vice Head, Cyber Security and Smart City Laboratory, ITS (Jan 2026 – present): leads data science and AI research; designed and deployed a RAG-based laboratory chatbot with model auto-routing.
+- Machine Learning Engineer, Avalon AI (Feb 2024 – present): research on gradient boosting trees, language-model architectures and RAG; authored work on SahabatAI-based RAG for legal contexts.
+- AI Engineer Intern, PT PAL Indonesia (Dec 2025 – Feb 2026): built NDA-protected internal AI systems for document knowledge access and conversational business intelligence.
+- Assistant Lecturer, ITS (Aug 2024 – Jul 2026): Artificial Intelligence / Machine Learning; Data Communications and Computer Network; Database Systems; Algorithms and Programming Techniques.
+
+## Selected projects
+
+- 19MJ AI Career Development & Hiring Platform: AI-powered career development and recruitment platform (React, Node.js, Express, PostgreSQL, FastAPI, Faster-Whisper). https://github.com/nessorrowz/19MJ
+- Real-Time Big Data Lakehouse Platform: containerized streaming data platform with medallion layers, automated training, MLflow tracking and API inference (Kafka, Spark, MinIO, MLflow, FastAPI, Docker). https://github.com/Trenttzzz/fp-bigdata-01
+- Material Property Prediction: piecewise Gaussian Process Regression; 1st place, final leaderboard score 0.13689.
+- Hybrid RAG Knowledge Assistant (NDA): hybrid retrieval, reranking and local LLM inference; 86.67% context recall and 78.89% context precision.
+- Executive Data Assistant (NDA): Bahasa Indonesia text-to-SQL over ClickHouse via Telegram; 100% query execution success on hard-level test cases.
+
+## Achievements
+
+- 1st Place, Spring 2025 Regression Challenge (international Kaggle competition).
+- 3rd Place, FIT Competition, Data Science International Category (Universitas Kristen Satya Wacana): flood segmentation 0.8771 IoU, crop recommendation 99.70% accuracy.
+
+## Leadership
+
+- Lead Chapter, Google Developer Groups on Campus ITS (Oct 2025 – present): 29 core team staff, 800+ community members.
+- Project Officer, A Renewal Agent 7.0 ITS (Aug 2025 – Mar 2026): 13 divisions, 170+ committee members.
+- Research and Technology Staff, HMIT ITS (Jan 2025 – Jan 2026): Staff of the Year.
+
+## Focus areas
+
+Retrieval-Augmented Generation, Large Language Models, Agentic AI, LLM Evaluation, Machine Learning, MLOps, Data Engineering, Natural Language Processing, Computer Vision, Deep Learning, Generative AI, LLM Fine-tuning.
