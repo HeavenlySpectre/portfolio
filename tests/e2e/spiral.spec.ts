@@ -65,6 +65,14 @@ test('exactly one canvas inside #projects, no errors, and destroy() cleans up', 
   await expect(page.locator('#projects canvas')).toHaveCount(0);
   expect(await page.evaluate(() => (window as any).__spiralCount)).toBe(0);
   expect(await page.evaluate(() => !!document.getElementById('projects')!.closest('.pin-spacer') || document.getElementById('projects')!.hasAttribute('data-view') || !!document.querySelector('#projects .sp-stage, #projects .sp-controls, #projects .sp-card img'))).toBe(false);
+  // the fallback layout is back in full: no reserved pinned height, the grid is visible and the page is short again
+  expect(await page.evaluate(() => document.documentElement.classList.contains('sp-on'))).toBe(false);
+  await expect(page.locator('#projects .sp-card').first()).toBeVisible();
+  await expect(page.locator('#projects .sp-card').last()).toBeAttached();
+  const h = await page.evaluate(() => ({ section: document.getElementById('projects')!.getBoundingClientRect().height, vh: innerHeight, grid: document.querySelector('#projects .sp-grid')!.getBoundingClientRect().height }));
+  expect(h.section).toBeLessThan(h.vh * 3.5); // pinned reservation was 6.6 viewports
+  expect(h.section).toBeGreaterThanOrEqual(h.grid);
+  expect(h.grid).toBeGreaterThan(300); // the 8 cards are actually laid out, not a 1px hole
   expect(errs).toEqual([]);
 });
 
@@ -174,5 +182,37 @@ test.describe('javascript disabled', () => {
     await expect(links.first()).toBeVisible();
     await expect(links.first()).toContainText('Hybrid RAG Knowledge Assistant');
     await expect(page.locator('#projects canvas')).toHaveCount(0);
+  });
+});
+
+test.describe('touch', () => {
+  test.use({ hasTouch: true });
+
+  // A tap fires pointerdown and pointerup but no pointermove: the pick must use the tap position, not a stale one.
+  test('a tap targets the card under the finger', async ({ page }) => {
+    test.setTimeout(90_000);
+    const r = await ready(page);
+    const y = Math.round(r.start + ((r.end - r.start) * 3) / 7);
+    await page.evaluate((v) => window.scrollTo(0, v), y);
+    type P = { i: number; active: boolean; face: number; rect: number[] };
+    const poseOf = () => page.evaluate(() => (window as any).__spiral.pose() as P[]);
+    await expect.poll(async () => (await poseOf()).find((p) => p.active)?.face, { timeout: 30000 }).toBe(1);
+    const count = () => page.locator('#projects .sp-count b').textContent();
+    expect(await count()).toBe('04');
+    // centre of the visible part of a card
+    const centre = (p: P) => ({ x: (Math.max(0, p.rect[0]) + Math.min(1280, p.rect[2])) / 2, y: (p.rect[1] + p.rect[3]) / 2 });
+    // the stale pointer position is the stage centre (0, 0): it lies on the active card, so a wrong pick would navigate instead of step
+    const next = (await poseOf()).find((p) => p.i === 4)!;
+    const n = centre(next);
+    expect(n.x).toBeGreaterThan(next.rect[0]);
+    await page.touchscreen.tap(n.x, n.y);
+    await expect.poll(count, { timeout: 15000 }).toBe('05');
+    expect(new URL(page.url()).pathname).toBe('/');
+    // then a tap on the (now active) card opens it
+    await expect.poll(async () => (await poseOf()).find((p) => p.active)?.face, { timeout: 30000 }).toBe(1);
+    const act = (await poseOf()).find((p) => p.i === 4)!;
+    const a = centre(act);
+    await page.touchscreen.tap(a.x, a.y);
+    await page.waitForURL('**/projects/19mj-career-platform/', { timeout: 15000 });
   });
 });

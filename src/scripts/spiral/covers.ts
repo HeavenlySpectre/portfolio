@@ -78,7 +78,7 @@ const BODY: Record<string, (c: Ctx, r: Rect, T: Theme) => void> = {
         const bw = (lw - 130) * s;
         c.fillStyle = T.faint; rr(c, x + 70, yy + 8, lw - 130, 22, 4); c.fill();
         c.fillStyle = rgba(T.fg, 0.55); rr(c, x + 70, yy + 8, bw, 22, 4); c.fill();
-        txt(c, s.toFixed(2), x + lw, yy + 28, { font: `500 22px ${m}`, color: T.dim, align: 'right' });
+        txt(c, '▮▮▮', x + lw, yy + 28, { font: `500 22px ${m}`, color: T.dim, align: 'right' });
         return { id, ex: x + lw + 8, ey: yy + 19 };
       });
     };
@@ -102,7 +102,7 @@ const BODY: Record<string, (c: Ctx, r: Rect, T: Theme) => void> = {
       c.beginPath(); c.moveTo(p.ex, p.ey);
       c.bezierCurveTo(p.ex + 60, p.ey, q.sx - 60, q.sy, q.sx, q.sy); c.stroke();
     });
-    txt(c, 'query: "kebijakan cuti tahunan?"', x, y + h - 6, { font: `400 22px ${m}`, color: T.dim });
+    txt(c, 'query: "▮▮▮▮ ▮▮▮▮▮▮"', x, y + h - 6, { font: `400 22px ${m}`, color: T.dim });
   },
 
   // Text-to-SQL: question -> SQL -> result table
@@ -110,7 +110,7 @@ const BODY: Record<string, (c: Ctx, r: Rect, T: Theme) => void> = {
     const { x, y, w, h } = r, m = T.fMono;
     rr(c, x, y + 4, w, 76, 10); c.strokeStyle = T.line; c.lineWidth = 2; c.stroke();
     txt(c, 'ID', x + 22, y + 52, { font: `600 22px ${m}`, color: T.accent });
-    txt(c, 'Berapa omzet tiap cabang bulan lalu?', x + 76, y + 53, { font: `500 33px ${T.fBody}`, color: T.fg });
+    txt(c, 'Berapa total tiap region bulan lalu?', x + 76, y + 53, { font: `500 33px ${T.fBody}`, color: T.fg });
     // arrow
     c.strokeStyle = T.accent; c.lineWidth = 3; c.beginPath(); c.moveTo(x + 40, y + 94); c.lineTo(x + 40, y + 134); c.lineTo(x + 30, y + 124); c.moveTo(x + 40, y + 134); c.lineTo(x + 50, y + 124); c.stroke();
     txt(c, 'schema-aware · read-only', x + 66, y + 122, { font: `400 21px ${m}`, color: T.dim });
@@ -118,12 +118,12 @@ const BODY: Record<string, (c: Ctx, r: Rect, T: Theme) => void> = {
     const sw = w * 0.6, sy = y + 148, sh = h - 148;
     rr(c, x, sy, sw, sh, 10); c.fillStyle = rgba(T.fg, 0.05); c.fill();
     const L = [
-      [['SELECT ', 'k'], ['cabang,', 'i']],
-      [['  SUM', 'k'], ['(total) ', 'i'], ['AS ', 'k'], ['omzet', 'i']],
-      [['FROM ', 'k'], ['penjualan', 'i']],
-      [['WHERE ', 'k'], ["bulan = '2025-09'", 's']],
-      [['GROUP BY ', 'k'], ['cabang', 'i']],
-      [['ORDER BY ', 'k'], ['omzet ', 'i'], ['DESC', 'k']],
+      [['SELECT ', 'k'], ['region,', 'i']],
+      [['  SUM', 'k'], ['(value) ', 'i'], ['AS ', 'k'], ['total', 'i']],
+      [['FROM ', 'k'], ['table_a', 'i']],
+      [['WHERE ', 'k'], ["period = '▮▮▮▮'", 's']],
+      [['GROUP BY ', 'k'], ['region', 'i']],
+      [['ORDER BY ', 'k'], ['total ', 'i'], ['DESC', 'k']],
     ];
     L.forEach((ln, i) => {
       let cx = x + 22; const yy = sy + 42 + i * 40;
@@ -137,7 +137,7 @@ const BODY: Record<string, (c: Ctx, r: Rect, T: Theme) => void> = {
     // result table
     const tx = x + sw + 28, tw = w - sw - 28;
     txt(c, 'rows: 3', tx, sy + 26, { font: `600 20px ${m}`, color: T.dim });
-    const rows = [['cabang', 'omzet'], ['Jakarta', '412jt'], ['Bandung', '287jt'], ['Surabaya', '254jt']];
+    const rows = [['region', 'total'], ['region_a', '▮▮▮'], ['region_b', '▮▮▮'], ['region_c', '▮▮▮']];
     rows.forEach((rw, i) => {
       const yy = sy + 52 + i * 44;
       if (i === 0) { c.fillStyle = rgba(T.fg, 0.08); c.fillRect(tx, yy, tw, 38); }

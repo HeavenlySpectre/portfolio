@@ -10,7 +10,7 @@ declare global {
   interface Window { __spiralCount?: number; __spiral?: { pose(): Pose[]; destroy(): void } }
 }
 
-export interface Pose { i: number; active: boolean; yaw: number; pitch: number; roll: number; face: number; bend: number }
+export interface Pose { i: number; active: boolean; yaw: number; pitch: number; roll: number; face: number; bend: number; rect: number[] }
 interface Item extends CoverItem { href: string; cat: string; title: string; desc: string; tags: string[]; cta: string }
 type View = 'spiral' | 'grid';
 interface Card {
@@ -47,7 +47,7 @@ function readItems(grid: HTMLElement): Item[] {
 
 /**
  * Enhances the server-rendered grid inside `section` (#projects) with the pinned 3D spiral.
- * Throws when WebGL is unavailable, leaving the section untouched so the grid stays.
+ * Throws when WebGL is unavailable, leaving the section untouched so the grid stays. destroy() restores the plain grid layout.
  */
 export function mountSpiral(section: HTMLElement): { destroy(): void } {
   const prior = mounted.get(section);
@@ -183,16 +183,21 @@ export function mountSpiral(section: HTMLElement): { destroy(): void } {
   });
   let drag: { x: number; y: number; g: number; a: number; moved: boolean; lx: number; lt: number; vx: number } | null = null;
   const ptr = { x: 0, y: 0, in: false, type: 'mouse' };
-  listen(stage, 'pointerdown', (e: PointerEvent) => {
-    if (view !== 'spiral' || (e.button || 0) > 0) return;
-    drag = { x: e.clientX, y: e.clientY, g: goal, a: active, moved: false, lx: e.clientX, lt: performance.now(), vx: 0 };
-    ptr.type = e.pointerType;
-  });
-  listen(window, 'pointermove', (e: PointerEvent) => {
+  /* a touch tap fires pointerdown and pointerup without any pointermove, so every pointer event refreshes the position */
+  const setPtr = (e: PointerEvent) => {
     const rect = stage.getBoundingClientRect();
     ptr.x = ((e.clientX - rect.left) / rect.width) * 2 - 1; ptr.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
     ptr.in = e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom && e.target === stage.querySelector('canvas');
     ptr.type = e.pointerType;
+    return rect;
+  };
+  listen(stage, 'pointerdown', (e: PointerEvent) => {
+    if (view !== 'spiral' || (e.button || 0) > 0) return;
+    setPtr(e);
+    drag = { x: e.clientX, y: e.clientY, g: goal, a: active, moved: false, lx: e.clientX, lt: performance.now(), vx: 0 };
+  });
+  listen(window, 'pointermove', (e: PointerEvent) => {
+    const rect = setPtr(e);
     if (!drag) return;
     const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
     if (!drag.moved && Math.abs(dx) > 6 && Math.abs(dx) > Math.abs(dy)) { drag.moved = true; root.classList.add('is-dragging'); }
@@ -207,6 +212,7 @@ export function mountSpiral(section: HTMLElement): { destroy(): void } {
     if (!drag) return;
     const d = drag; drag = null; root.classList.remove('is-dragging');
     if (cancel) return;
+    setPtr(e);
     const dx = e.clientX - d.x, w = stage.clientWidth;
     if (d.moved) {
       if (stepHandler) { if (Math.abs(dx) > 50) stepHandler(dx < 0 ? 1 : -1); return; }
@@ -406,7 +412,13 @@ export function mountSpiral(section: HTMLElement): { destroy(): void } {
       _qr.copy(gl!.camera.quaternion).invert().multiply(c.mesh.getWorldQuaternion(new THREE.Quaternion()));
       _e.setFromQuaternion(_qr, 'YXZ');
       const d = (v: number) => +(v * 180 / Math.PI).toFixed(2);
-      return { i, active: i === active, yaw: d(_e.y), pitch: d(_e.x), roll: d(_e.z), face: +c.face.toFixed(3), bend: +c.bend.toFixed(3) };
+      const sr = stage.getBoundingClientRect(); let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+      [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(([a, b]) => {
+        const v = c.mesh.localToWorld(new THREE.Vector3((a * CW) / 2, (b * CH) / 2, TH / 2)).project(gl!.camera);
+        const px = sr.left + ((v.x + 1) / 2) * sr.width, py = sr.top + ((1 - v.y) / 2) * sr.height;
+        x0 = Math.min(x0, px); x1 = Math.max(x1, px); y0 = Math.min(y0, py); y1 = Math.max(y1, py);
+      });
+      return { i, active: i === active, yaw: d(_e.y), pitch: d(_e.x), roll: d(_e.z), face: +c.face.toFixed(3), bend: +c.bend.toFixed(3), rect: [x0, y0, x1, y1].map(Math.round) };
     });
   }
   function shouldRun() { return !!gl && view === 'spiral' && inView && !document.hidden && !destroyed; }
@@ -429,6 +441,7 @@ export function mountSpiral(section: HTMLElement): { destroy(): void } {
       pin?.destroy();
       cleanups.splice(0).reverse().forEach((f) => f());
       root.classList.remove('is-dragging');
+      document.documentElement.classList.remove('sp-on'); // drop the reserved pinned height: the grid is the layout again
       mounted.delete(section);
       window.__spiralCount = Math.max(0, (window.__spiralCount ?? 1) - 1);
       if (window.__spiral?.pose === pose) delete window.__spiral;
