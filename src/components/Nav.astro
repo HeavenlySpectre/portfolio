@@ -1,0 +1,26 @@
+---
+const items = [
+  { label: '~/projects', href: '#projects', sec: 'projects' },
+  { label: '~/experience', href: '#experience', sec: 'experience' },
+  { label: '~/about', href: '#drives', sec: 'drives' },
+  { label: '~/contact', href: '#contact', sec: 'contact' },
+  { label: 'cv', href: '/media/documents/kevin-anugerah-faza-cv.pdf', sec: 'cv' },
+];
+---
+<header class="nav" id="nav">
+  <a class="brand" href="#top" data-sec="top">kevin@portfolio</a>
+  <ul>
+    {items.map((i) => <li><a href={i.href} data-sec={i.sec}>{i.label}</a></li>)}
+  </ul>
+  <i class="nav-p" id="navp" aria-hidden="true"></i>
+  <button class="mbtn" id="menu-open" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="menu">menu</button>
+</header>
+
+<div class="menu" id="menu" role="dialog" aria-modal="true" aria-label="Menu" hidden>
+  <div class="menu-top"><a class="brand" href="#top">kevin@portfolio</a><button id="menu-close" type="button">close</button></div>
+  <p class="menu-ps"><b>kevin@portfolio</b>:~$ ls</p>
+  <ul class="menu-list">
+    {items.map((i) => <li><a href={i.href}><i>&gt;</i>{i.label}</a></li>)}
+  </ul>
+  <p class="menu-hint">esc to close</p>
+</div>

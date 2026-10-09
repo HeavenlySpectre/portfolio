@@ -1,0 +1,52 @@
+/* top bar, mobile menu, footer and motion helpers (ported from the home-full board) */
+@keyframes blink { 50% { opacity: 0; } }
+.vh { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+section[id] { scroll-margin-top: 3rem; }
+
+.nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .55rem var(--padx);
+  background: rgb(var(--bg-rgb) / .92); border-bottom: 1px solid var(--line); font: 500 .78rem/1 var(--mono); }
+.nav a, .nav button { color: var(--muted); text-decoration: none; transition: color .2s; }
+.nav a:hover, .nav button:hover { color: var(--text); }
+.nav .brand { display: inline-block; padding: .5rem 0; color: var(--accent); font-weight: 500; }
+.nav .brand.on { text-shadow: 0 0 var(--glow-blur) var(--accent-glow); }
+.nav ul { display: flex; gap: .2rem 1.5rem; list-style: none; margin: 0; padding: 0; }
+.nav ul a { position: relative; display: inline-block; padding: .5rem 0; }
+.nav ul a::after { content: ""; position: absolute; left: 0; right: 0; bottom: .25rem; height: 1px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform .25s ease; }
+.nav ul a:hover::after, .nav ul a:focus-visible::after { transform: none; }
+.nav ul a.on { color: var(--accent); }
+.nav ul a.on::after { transform: none; }
+.nav a:focus-visible, .nav button:focus-visible, .menu a:focus-visible, .menu button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.nav-p { position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--accent); box-shadow: 0 0 8px var(--accent-glow); transform: scaleX(0); transform-origin: left; pointer-events: none; will-change: transform; }
+.mbtn { display: none; font: inherit; background: none; border: 1px solid var(--line); padding: .5rem .7rem; cursor: pointer; color: var(--text); }
+.mbtn:hover { border-color: var(--accent); }
+
+.menu { position: fixed; inset: 0; z-index: 900; background: var(--bg); display: none; flex-direction: column; padding: .55rem var(--padx) 2rem; overflow: auto; }
+.menu:not([hidden]) { display: flex; }
+.menu::before { content: ""; position: fixed; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(0,0,0,.2) 0 1px, transparent 1px 3px); }
+.menu-top { display: flex; align-items: center; justify-content: space-between; font: 500 .78rem/1 var(--mono); border-bottom: 1px solid var(--line); margin: 0 calc(-1 * var(--padx)); padding: 0 var(--padx) .55rem; }
+.menu-top .brand { color: var(--accent); text-decoration: none; }
+.menu-top button { font: inherit; color: var(--text); background: none; border: 1px solid var(--line); padding: .5rem .7rem; cursor: pointer; }
+.menu-ps { margin: 2.4rem 0 1rem; font-size: .85rem; color: var(--muted); }
+.menu-ps b { color: var(--accent); font-weight: 500; }
+.menu-list { list-style: none; margin: 0; padding: 0; display: grid; gap: .2rem; }
+.menu-list a { display: block; padding: .7rem 0; font-size: clamp(1.5rem, 8vw, 2.2rem); font-weight: 700; letter-spacing: -.04em; text-decoration: none; color: var(--text); }
+.menu-list a i { font-style: normal; color: var(--accent); margin-right: .5ch; }
+.menu-list a:hover, .menu-list a:focus-visible { color: var(--accent); }
+.menu-hint { margin: auto 0 0; padding-top: 2rem; font-size: .72rem; color: var(--muted); }
+html.menu-open { overflow: hidden; }
+@media (max-width: 640px) {
+  .nav ul { display: none; }
+  .mbtn { display: inline-block; }
+}
+
+.foot { margin-top: clamp(4rem, 10vw, 7rem); padding: 1.3rem var(--padx) 1.6rem; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 1rem; font-size: .72rem; color: var(--muted); }
+.foot .x { color: var(--accent-dim); }
+
+/* motion helpers: the box is sized by the invisible final text (.fx-g) */
+.fx-g { visibility: hidden; }
+.fx-w { position: relative; display: block; }
+.fx-w > .fx-s { position: absolute; left: 0; top: 0; width: 100%; height: 100%; clip-path: inset(-.3em -.3em -.3em -.3em); }
+.fx-w > .fx-g { white-space: inherit; }
+.fx-c { position: relative; }
+.fx-c::after { content: ""; position: absolute; left: 0; bottom: -.14em; width: .6em; height: 1.1em; background: var(--accent); box-shadow: 0 0 10px var(--accent-glow); animation: blink 1s steps(1) infinite; }
+@media (prefers-reduced-motion: reduce) { .nav-p { display: none; } .nav a, .nav ul a::after { transition: none; } }

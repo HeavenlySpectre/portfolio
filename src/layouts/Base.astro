@@ -1,5 +1,8 @@
 ---
 import '../styles/base.css';
+import '../styles/shell.css';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
 import plex400 from '@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2?url';
 
 interface Props {
@@ -32,6 +35,11 @@ const { title, description, canonical, ogImage, jsonLd } = Astro.props;
     {jsonLd.map((d) => <script type="application/ld+json" set:html={JSON.stringify(d)} />)}
   </head>
   <body>
+    <Nav />
     <slot />
+    <Footer />
+    <script>
+      import '../scripts/nav';
+    </script>
   </body>
 </html>

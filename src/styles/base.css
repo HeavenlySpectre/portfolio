@@ -16,3 +16,4 @@ body {
 ::selection { background: var(--accent); color: var(--bg); }
 a { color: var(--accent); }
 section { padding: 4rem var(--padx); }
+main { padding-top: 3rem; }
