@@ -11,7 +11,7 @@
     if (seen || reduced) return;
     D.classList.add('ld', 'ld-lock');
     document.currentScript.insertAdjacentHTML('afterend',
-      '<div id="loader" aria-hidden="true"><div class="ld-curtain"><div class="ld-bg"></div><div class="ld-scan"></div></div>' +
+      '<div id="loader" aria-hidden="true" inert><div class="ld-curtain"><div class="ld-bg"></div><div class="ld-scan"></div></div>' +
       '<pre id="ld-log"></pre><p id="ld-line"></p><div class="ld-hint">any key / tap to skip</div></div>');
     /* last resort if the module never loads: never trap the page */
     setTimeout(function () {

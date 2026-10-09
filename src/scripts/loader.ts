@@ -20,7 +20,12 @@ function run(L: HTMLElement) {
   const hint = L.querySelector<HTMLElement>('.ld-hint')!;
   const prompt = document.querySelector<HTMLElement>('.prompt')!;
   const PROMPT = 'kevin@portfolio:~$ whoami', PB = 'kevin@portfolio'.length;
-  const MIN_FILL = 1.0, FORCE_AT = 1.9, SAFETY = 8000;
+  const MIN_FILL = 1.0, FORCE_AT = 1.9;
+  // test hook: ?kv-safety=<ms> shortens the safety timeout so the safety path can be exercised
+  const hook = Number(new URLSearchParams(location.search).get('kv-safety'));
+  const SAFETY = hook > 0 ? hook : 8000;
+  const heroWords = [...document.querySelectorAll<HTMLElement>('.hero h1 span')];
+  const heroFinal = heroWords.map((w) => w.textContent ?? '');
   try { history.scrollRestoration = 'manual'; } catch { /* ignore */ }
   scrollTo(0, 0);
 
@@ -123,7 +128,7 @@ function run(L: HTMLElement) {
     setLine('> ready.'); lastLn.style.visibility = 'hidden';
 
     const rv = [...document.querySelectorAll<HTMLElement>('.rv')];
-    const words = [...document.querySelectorAll<HTMLElement>('.hero h1 span')], tg = words.map((w) => w.textContent ?? '');
+    const words = heroWords, tg = heroFinal;
     const total = tg.join('').length, SYM = '01<>/\\{}[]=+*#%$', thr: number[][] = [];
     let g = 0;
     tg.forEach((w, wi) => { thr[wi] = []; for (let i = 0; i < w.length; i++, g++) thr[wi][i] = 0.1 + 0.8 * (g / (total - 1)); });
@@ -166,10 +171,12 @@ function run(L: HTMLElement) {
 
   const skip = () => { if (skipped) return; skipped = true; if (tl) tl.timeScale(2.5); };
   addEventListener('keydown', skip);
-  L.addEventListener('pointerdown', skip);
+  addEventListener('pointerdown', skip); // the overlay is inert, so listen on the window
   setTimeout(() => { // never trap the page
     if (!settled) {
-      tl?.progress(1);
+      tl?.progress(1, false); // events are suppressed on purpose, so restore the end state by hand
+      heroWords.forEach((w, i) => { w.textContent = heroFinal[i]; });
+      document.querySelectorAll<HTMLElement>('.rv').forEach((e) => { e.style.opacity = ''; e.style.transform = ''; e.style.transition = ''; });
       D.classList.remove('ld');
       settle();
     }
