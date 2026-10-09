@@ -32,7 +32,7 @@ const links = [...nav.querySelectorAll<HTMLAnchorElement>('ul a')];
     const atEnd = scrollY + innerHeight >= D.scrollHeight - 2;
     let key = 'top';
     let ak = 'top';
-    for (const s of document.querySelectorAll<HTMLElement>('main > section')) {
+    for (const s of document.querySelectorAll<HTMLElement>('main section[id]')) {
       if (anchors.has(s.id)) ak = s.id;
       if (s.getBoundingClientRect().top <= probe) key = ak;
     }

@@ -1,0 +1,174 @@
+---
+import { getCollection } from 'astro:content';
+
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+const pad2 = (n: number) => String(n).padStart(2, '0');
+const cards = [
+  ...projects.map(({ data: d }) => {
+    const m = d.metrics[0];
+    return {
+      slug: d.slug,
+      href: `/projects/${d.slug}/`,
+      cat: d.category,
+      title: d.title,
+      fact: m ? `${m.value} ${m.label}` : '',
+      desc: d.summary,
+      tags: d.stack.slice(0, 4),
+    };
+  }),
+  {
+    slug: 'contact',
+    href: '#contact',
+    cat: 'Contact',
+    title: 'Get in touch',
+    fact: 'Open to roles and collaborations',
+    desc: 'Reach me by email or on LinkedIn, GitHub and Kaggle.',
+    tags: ['Email', 'LinkedIn', 'GitHub', 'Kaggle'],
+  },
+];
+---
+<!-- Reserve the pinned height before the spiral mounts, so nothing below moves when it does. Without JavaScript or with reduced motion this never runs and the grid stays. -->
+<script is:inline>
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('sp-on');
+</script>
+<section id="projects" class="spiral" aria-label="Projects" style={`--sp-steps:${projects.length}`}>
+  <h2 class="sp-h">Projects</h2>
+  <ul class="sp-grid" aria-label="Projects">
+    {cards.map((c, i) => (
+      <li>
+        <a class="sp-card" href={c.href} data-slug={c.slug}>
+          <span class="sp-card-meta"><span class="sp-num">{pad2(i + 1)}</span><span class="sp-cat">{c.cat}</span></span>
+          <h3 class="sp-title">{c.title}</h3>
+          <p class="sp-fact">{c.fact}</p>
+          <p class="sp-desc">{c.desc}</p>
+          <span class="sp-tags">{c.tags.map((t) => <span>{t}</span>)}</span>
+        </a>
+      </li>
+    ))}
+  </ul>
+</section>
+
+<style is:global>
+  /* ---------- spiral (port of the board's spiral.css, Kernel theme) ---------- */
+  .spiral { --sp-bg: var(--bg); --sp-fg: var(--text); --sp-dim: var(--muted); --sp-line: var(--line); --sp-accent: var(--accent); --sp-gutter: var(--padx); --sp-radius: 0px;
+    position: relative; isolation: isolate; background: var(--sp-bg); color: var(--sp-fg); font-family: var(--mono); }
+
+  /* grid: the default (no JavaScript, reduced motion, or the Grid toggle) */
+  .spiral { padding: 5rem var(--padx) 4rem; }
+  .sp-h { margin: 0 0 2rem; text-transform: lowercase; font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 700; letter-spacing: -.04em; }
+  .sp-h::before { content: "$ ls "; color: var(--sp-accent); }
+  .sp-h::after { content: "/"; color: var(--sp-accent); }
+  .sp-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr)); gap: 2rem 1.4rem; }
+  .sp-card { display: block; height: 100%; color: inherit; text-decoration: none; }
+  .sp-card img { display: block; width: 100%; height: auto; aspect-ratio: 1024/640; border: 2px solid var(--sp-line); border-radius: var(--sp-radius); transition: transform .35s cubic-bezier(.2,.7,.2,1), border-color .2s; }
+  .sp-card:hover img { transform: translateY(-4px); border-color: var(--sp-accent); }
+  .sp-card-meta { display: flex; gap: .8rem; margin: .9rem 0 .35rem; font: 500 .72rem/1.3 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--sp-dim); }
+  .sp-num { color: var(--sp-accent); }
+  .sp-card .sp-title { margin: 0 0 .35rem; font-size: 1.25rem; font-weight: 700; letter-spacing: -.045em; line-height: 1.1; }
+  .sp-card:hover .sp-title { color: var(--sp-accent); }
+  .sp-card .sp-fact { margin: 0 0 .5rem; font-size: .8rem; line-height: 1.4; color: var(--sp-accent); }
+  .sp-card .sp-desc { margin: 0; font-size: .82rem; line-height: 1.55; color: color-mix(in srgb, var(--sp-fg) 78%, transparent); }
+  .sp-card .sp-tags { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .8rem; }
+  .sp-card .sp-tags span { font: 500 .68rem/1 var(--mono); padding: .35rem .5rem; border: 1px solid var(--sp-line); color: var(--sp-dim); }
+  .sp-card:focus-visible { outline: 2px solid var(--sp-accent); outline-offset: 3px; }
+
+  /* before the spiral mounts: keep the pinned height, hide the grid visually (it stays in the document) */
+  html.sp-on .spiral:not([data-view]) { height: calc(100svh * (1 + var(--sp-steps) * .8)); padding: 0; overflow: hidden; }
+  html.sp-on .spiral:not([data-view]) .sp-grid,
+  .spiral[data-view=spiral] .sp-grid,
+  html.sp-on .spiral:not([data-view]) .sp-h,
+  .spiral[data-view=spiral] .sp-h { position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+  /* spiral */
+  .spiral[data-view=spiral] { height: 100vh; height: 100svh; min-height: 560px; padding: 0; overflow: hidden; }
+  .spiral[data-view=spiral]::before { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+    background: linear-gradient(90deg, var(--sp-bg) 0%, color-mix(in srgb, var(--sp-bg) 80%, transparent) 28%, transparent 56%); }
+  .sp-stage { position: absolute; inset: 0; z-index: 0; }
+  .sp-stage canvas { display: block; width: 100%; height: 100%; touch-action: pan-y; cursor: grab; }
+  .spiral.is-dragging .sp-stage canvas { cursor: grabbing; }
+
+  .sp-info { position: absolute; z-index: 2; left: var(--sp-gutter); top: 50%; transform: translateY(-50%); width: min(36rem, 40%); display: grid; pointer-events: none; }
+  .sp-item { grid-area: 1/1; opacity: 0; visibility: hidden; transform: translateY(16px);
+    transition: opacity .28s ease, transform .28s ease, visibility 0s .28s; }
+  .sp-item.is-active { opacity: 1; visibility: visible; transform: none; pointer-events: auto;
+    transition: opacity .6s ease .22s, transform .7s cubic-bezier(.2,.7,.2,1) .22s, visibility 0s; }
+  .sp-kicker { display: flex; gap: .9rem; align-items: baseline; margin: 0 0 1.1rem; font: 500 .78rem/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--sp-dim); }
+  .sp-kicker .sp-num::before { content: "$ ls projects/"; }
+  .sp-kicker .sp-cat::before { content: "# "; }
+  .sp-info .sp-title { margin: 0 0 .9rem; font-weight: 700; font-size: clamp(1.8rem, 3.1vw, 3.1rem); line-height: 1.02; letter-spacing: -.045em; text-wrap: balance; }
+  .sp-info .sp-fact { margin: 0 0 1rem; font: 600 .95rem/1.3 var(--mono); color: var(--sp-accent); }
+  .sp-info .sp-desc { margin: 0 0 1.1rem; max-width: 34ch; font-size: .9rem; line-height: 1.55; color: color-mix(in srgb, var(--sp-fg) 78%, transparent); }
+  .sp-tags { display: flex; flex-wrap: wrap; gap: .4rem; list-style: none; margin: 0 0 1.5rem; padding: 0; }
+  .sp-tags li { font: 500 .72rem/1 var(--mono); padding: .4rem .6rem; border: 1px solid var(--sp-line); color: var(--sp-dim); border-radius: var(--sp-radius); }
+  .sp-cta { display: inline-flex; gap: .6rem; align-items: center; font: 600 .95rem/1 var(--mono); color: var(--sp-fg); text-decoration: none;
+    padding: .85rem 1.1rem; border: 1px solid var(--sp-fg); border-radius: var(--sp-radius); transition: background .2s, color .2s, border-color .2s; }
+  .sp-cta::before { content: "$ "; color: var(--sp-accent); margin-right: -.3rem; }
+  .sp-cta:hover, .sp-cta:focus-visible { background: var(--sp-accent); border-color: var(--sp-accent); color: var(--sp-bg); }
+  .sp-cta:hover::before, .sp-cta:focus-visible::before { color: var(--sp-bg); }
+
+  .sp-controls { position: absolute; z-index: 3; right: var(--sp-gutter); bottom: clamp(1rem, 3vw, 2.2rem); display: flex; align-items: center; gap: .9rem; }
+  .sp-count { font: 500 1rem/1 var(--mono); min-width: 5.5ch; text-align: center; color: var(--sp-dim); }
+  .sp-count b { color: var(--sp-fg); font-weight: 500; }
+  .sp-count i { font-style: normal; }
+  .sp-btn, .sp-toggle { font: 500 1rem/1 var(--mono); color: var(--sp-fg); background: rgb(var(--bg-rgb) / .7); border: 1px solid var(--sp-line); border-radius: var(--sp-radius); cursor: pointer;
+    transition: border-color .2s, background .2s, color .2s, opacity .2s; }
+  .sp-btn { width: auto; height: 2.9rem; padding: 0 .7rem; display: flex; gap: .3rem; align-items: center; font-size: 1.15rem; }
+  .sp-btn::before { content: "["; }
+  .sp-btn::after { content: "]"; }
+  .sp-toggle { padding: .8rem 1rem; margin-right: .6rem; font-size: .82rem; letter-spacing: .06em; text-transform: uppercase; }
+  .sp-btn:hover:not(:disabled), .sp-toggle:hover { border-color: var(--sp-accent); color: var(--sp-accent); }
+  .sp-btn:disabled { opacity: .28; cursor: default; }
+  .sp-btn:focus-visible, .sp-toggle:focus-visible, .sp-cta:focus-visible { outline: 2px solid var(--sp-accent); outline-offset: 3px; }
+
+  /* grid view chosen with the toggle (the grid is the same markup the page shipped with) */
+  .spiral[data-view=grid] { min-height: 100svh; padding-top: 6.5rem; }
+  .spiral[data-view=grid] .sp-stage, .spiral[data-view=grid] .sp-info, .spiral[data-view=grid] .sp-count, .spiral[data-view=grid] .sp-btn { display: none; }
+  .spiral[data-view=grid] .sp-controls { top: 4.6rem; bottom: auto; }
+
+  @media (max-width: 760px) {
+    .spiral[data-view=spiral] { display: flex; flex-direction: column; }
+    .spiral[data-view=spiral]::before { display: none; }
+    .sp-info { position: relative; order: 1; top: auto; left: auto; transform: none; width: auto; padding: 4.6rem var(--sp-gutter) 0; flex: none; }
+    .sp-stage { position: relative; order: 2; inset: auto; flex: 1; min-height: 260px; }
+    .sp-info .sp-title { font-size: clamp(1.7rem, 8vw, 2.3rem); margin-bottom: .6rem; }
+    .sp-kicker { margin-bottom: .7rem; }
+    .sp-info .sp-desc { font-size: .92rem; margin-bottom: .8rem; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .sp-info .sp-tags { display: none; }
+    .sp-cta { padding: .7rem .9rem; }
+    .sp-controls { gap: .5rem; left: var(--sp-gutter); right: var(--sp-gutter); justify-content: flex-end; }
+    .sp-toggle { margin-right: auto; }
+    .spiral[data-view=grid] { padding-top: 7.5rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sp-item, .sp-item.is-active { transition: opacity .01s; }
+    .sp-card img { transition: none; }
+  }
+</style>
+
+<script>
+  import { prefersReducedMotion } from '../scripts/motion/fx';
+
+  /* Lazy init: three.js, the covers and the pin load when #projects is within one viewport, and never while the loader owns the frame
+     budget (loader-done, then a calm second, then idle). Module evaluation and scene creation land in separate tasks.
+     If the module or WebGL fails, the server-rendered grid stays (the sp-on reservation is lifted). */
+  const section = document.getElementById('projects');
+  if (section && !prefersReducedMotion()) {
+    const D = document.documentElement;
+    const idle = () => new Promise<void>((r) => ('requestIdleCallback' in window ? requestIdleCallback(() => r(), { timeout: 1500 }) : setTimeout(r, 200)));
+    const calm = D.classList.contains('ld')
+      ? new Promise<void>((r) => addEventListener('loader-done', () => setTimeout(r, 1000), { once: true }))
+      : Promise.resolve();
+    let started = false;
+    const io = new IntersectionObserver((es) => {
+      if (started || !es.some((e) => e.isIntersecting)) return;
+      started = true;
+      io.disconnect();
+      calm
+        .then(idle)
+        .then(() => import('../scripts/spiral/spiral'))
+        .then(async (m) => { await idle(); m.mountSpiral(section); })
+        .catch((err) => { console.warn('spiral unavailable, showing the grid', err); D.classList.remove('sp-on'); });
+    }, { rootMargin: '100% 0px' });
+    io.observe(section);
+  }
+</script>

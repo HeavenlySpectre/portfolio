@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import Loader from '../components/Loader.astro';
 import Hero from '../components/Hero.astro';
+import Projects from '../components/Projects.astro';
 const ids = ['drives', 'projects', 'experience', 'achievements', 'organizations', 'toolkit', 'education', 'contact'];
 ---
 <Base
@@ -14,6 +15,6 @@ const ids = ['drives', 'projects', 'experience', 'achievements', 'organizations'
   <Loader />
   <main>
     <Hero />
-    {ids.map((id) => <section id={id}><h2>{id}</h2></section>)}
+    {ids.map((id) => (id === 'projects' ? <Projects /> : <section id={id}><h2>{id}</h2></section>))}
   </main>
 </Base>
