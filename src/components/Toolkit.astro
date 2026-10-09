@@ -1,0 +1,52 @@
+---
+import * as simpleIcons from 'simple-icons';
+import { toolkit } from '../data/toolkit';
+
+/* Icons are inlined at build time from the installed simple-icons package: no runtime fetch. A missing slug renders a neutral glyph. */
+const bySlug = new Map<string, string>();
+for (const v of Object.values(simpleIcons) as { slug?: string; path?: string }[]) {
+  if (v && typeof v === 'object' && v.slug && v.path) bySlug.set(v.slug, v.path);
+}
+const total = toolkit.reduce((n, g) => n + g.items.length, 0);
+---
+<section class="sec ab" id="toolkit" aria-labelledby="tk-h">
+  <div class="wrap">
+    <h2 class="sh" id="tk-h"><i>$</i> <span class="cmd">ls -la ~/toolkit</span> <small>skills</small></h2>
+    <p class="ls" id="tot">total {total}  ({toolkit.length} directories)</p>
+    <div class="tk" id="tk">
+      {toolkit.map((g) => (
+        <div class={`dir${g.lang ? ' lang' : ''}`} role="group" aria-label={g.dir}>
+          <h3>drwxr-xr-x &nbsp;<b>{g.dir}/</b> &nbsp;{g.items.length}</h3>
+          <ul>
+            {g.items.map((it) => {
+              const d = it.icon ? bySlug.get(it.icon) : undefined;
+              return (
+                <li>
+                  {d
+                    ? <i class="lg" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d={d}></path></svg></i>
+                    : <i class="lg fb" aria-hidden="true">&#9642;</i>}
+                  {it.name}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  .ls { font-size: .78rem; color: var(--muted); margin-bottom: 1.2rem; overflow-wrap: anywhere; white-space: pre-wrap; }
+  .tk { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr)); gap: 1.8rem 2.2rem; }
+  .dir h3 { font-size: .76rem; font-weight: 400; color: var(--muted); padding-bottom: .4rem; margin-bottom: .5rem; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+  .dir h3 b { color: var(--accent); font-weight: 500; }
+  .dir ul { display: flex; flex-wrap: wrap; gap: .25rem .5rem; }
+  .dir li { font-size: .8rem; padding: .12rem .45rem; border: 1px solid var(--faint); color: var(--text); transition: border-color .2s, color .2s; }
+  .dir li:hover { border-color: var(--accent); color: var(--accent); }
+  .dir.lang li { border-color: var(--line); }
+  .lg { display: inline-flex; width: .95em; height: .95em; margin-right: .45em; vertical-align: -.14em; align-items: center; justify-content: center; color: var(--accent); font-style: normal; line-height: 1; }
+  .lg svg { width: 100%; height: 100%; fill: currentColor; display: block; }
+  .lg.fb { color: var(--muted); font-size: .8em; }
+  .dir li:hover .lg.fb { color: var(--accent); }
+</style>

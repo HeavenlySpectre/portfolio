@@ -1,0 +1,43 @@
+---
+import { contact } from '../data/contact';
+const shown = (u: string) => u.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
+const links = [
+  { k: 'linkedin', href: contact.linkedin },
+  { k: 'github', href: contact.github },
+  { k: 'kaggle', href: contact.kaggle },
+];
+---
+<section class="sec" id="contact" aria-labelledby="ct-h">
+  <div class="wrap">
+    <h2 class="sh" id="ct-h"><i>$</i> <span class="cmd">contact</span><span class="cursor" aria-hidden="true"></span></h2>
+    <p class="open">{contact.open}</p>
+    <dl class="ct">
+      <dt>email</dt><dd><a href={contact.mailto}>{contact.email}</a></dd>
+      {links.map((l) => (
+        <>
+          <dt>{l.k}</dt><dd><a href={l.href} target="_blank" rel="noopener noreferrer">{shown(l.href)}</a></dd>
+        </>
+      ))}
+      <dt>location</dt><dd>{contact.location}</dd>
+    </dl>
+    <a class="cta" href={contact.cv} download>{contact.cvAction}</a>
+  </div>
+</section>
+
+<style is:global>
+  .open { margin: 0 0 1.6rem; color: var(--muted); font-size: .9rem; }
+  .ct { display: grid; grid-template-columns: max-content 1fr; gap: .55rem 1.6rem; margin: 0 0 2rem; font-size: .88rem; }
+  .ct dt { color: var(--muted); }
+  .ct dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+  .ct a { position: relative; display: inline-block; color: var(--text); text-decoration: none; border-bottom: 1px dashed var(--line); transition: color .2s; }
+  /* hover: the underline draws left to right and a caret blinks after the link */
+  .ct a::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform .35s cubic-bezier(.2, .8, .2, 1); }
+  .ct a::before { content: ""; position: absolute; left: calc(100% + .7ch); top: 50%; width: .55ch; height: 1.05em; margin-top: -.55em; background: var(--accent); opacity: 0; transform: translateX(-.6ch); transition: opacity .15s, transform .3s; }
+  .ct a:hover, .ct a:focus-visible { color: var(--accent); }
+  .ct a:hover::after, .ct a:focus-visible::after { transform: none; }
+  .ct a:hover::before, .ct a:focus-visible::before { opacity: 1; transform: none; animation: blink 1s steps(1) .3s infinite; }
+  .cta { display: inline-block; font-weight: 600; font-size: .88rem; padding: .8rem 1.1rem; border: 1px solid var(--accent); color: var(--bg); background: var(--accent); text-decoration: none; box-shadow: 0 0 18px var(--accent-glow); }
+  .cta:hover, .cta:focus-visible { background: transparent; color: var(--accent); }
+  @media (max-width: 640px) { .ct { grid-template-columns: 1fr; gap: .1rem; } .ct dd { margin-bottom: .7rem; } }
+  @media (prefers-reduced-motion: reduce) { .ct a, .ct a::after, .ct a::before { transition: none; } .ct a:hover::before, .ct a:focus-visible::before { animation: none; } }
+</style>

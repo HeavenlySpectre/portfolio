@@ -1,0 +1,39 @@
+---
+import { organizations } from '../data/organizations';
+---
+<section class="sec ab" id="organizations" aria-labelledby="org-h">
+  <div class="wrap">
+    <h2 class="sh" id="org-h"><i>$</i> <span class="cmd">cat organizations.md</span> <small>community and leadership</small></h2>
+    <div class="orgs">
+      {organizations.map((o) => (
+        <article class="org">
+          <h3>{o.name}</h3>
+          <p class="rl">{o.role} &middot; {o.period}</p>
+          <ul class="big">
+            {o.stats.map((s) => (
+              <li class={s.count ? undefined : 'tx'}><b>{s.value}</b><span>{s.label}</span></li>
+            ))}
+          </ul>
+          <ul class="pts">
+            {o.bullets.map((t) => <li>{t}</li>)}
+          </ul>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  .orgs { display: grid; gap: 1.2rem; }
+  .org { background: var(--surface); border: 1px solid var(--line); padding: 1.1rem 1.1rem 1.2rem; min-width: 0; }
+  .org h3 { font-size: clamp(.95rem, 2.2vw, 1.1rem); font-weight: 600; line-height: 1.3; overflow-wrap: anywhere; }
+  .org .rl { font-size: .76rem; color: var(--muted); margin-top: .15rem; }
+  .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(8.6rem, 1fr)); gap: 1rem 1.4rem; margin-top: 1.1rem; }
+  .big b { display: block; font-size: clamp(1.9rem, 6.4vw, 3rem); font-weight: 700; letter-spacing: -.05em; line-height: 1; color: var(--accent); text-shadow: 0 0 18px var(--accent-glow); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+  .big span { display: block; margin-top: .35rem; font-size: .7rem; color: var(--muted); }
+  .big .tx { grid-column: 1 / -1; }
+  .big .tx b { font-size: clamp(1.4rem, 4.6vw, 2.2rem); }
+  .pts { margin-top: 1rem; padding-top: .7rem; border-top: 1px dashed var(--line); font-size: .76rem; color: var(--muted); display: grid; gap: .3rem; }
+  .pts li { padding-left: 1.1rem; position: relative; }
+  .pts li::before { content: ">"; position: absolute; left: 0; color: var(--accent-dim); }
+</style>

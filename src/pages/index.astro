@@ -1,9 +1,16 @@
 ---
+import '../styles/sections.css';
 import Base from '../layouts/Base.astro';
 import Loader from '../components/Loader.astro';
 import Hero from '../components/Hero.astro';
+import Drives from '../components/Drives.astro';
 import Projects from '../components/Projects.astro';
-const ids = ['drives', 'projects', 'experience', 'achievements', 'organizations', 'toolkit', 'education', 'contact'];
+import Experience from '../components/Experience.astro';
+import Achievements from '../components/Achievements.astro';
+import Organizations from '../components/Organizations.astro';
+import Toolkit from '../components/Toolkit.astro';
+import Education from '../components/Education.astro';
+import Contact from '../components/Contact.astro';
 ---
 <Base
   title="Kevin Anugerah Faza"
@@ -15,6 +22,16 @@ const ids = ['drives', 'projects', 'experience', 'achievements', 'organizations'
   <Loader />
   <main>
     <Hero />
-    {ids.map((id) => (id === 'projects' ? <Projects /> : <section id={id}><h2>{id}</h2></section>))}
+    <Drives />
+    <Projects />
+    <Experience />
+    <Achievements />
+    <Organizations />
+    <Toolkit />
+    <Education />
+    <Contact />
   </main>
+  <script>
+    import '../scripts/home';
+  </script>
 </Base>

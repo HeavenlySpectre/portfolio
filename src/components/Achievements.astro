@@ -1,0 +1,58 @@
+---
+import { achievements } from '../data/achievements';
+const ORD: Record<number, string> = { 1: '1ST', 2: '2ND', 3: '3RD' };
+---
+<section class="sec" id="achievements" aria-labelledby="ach-h">
+  <div class="wrap">
+    <h2 class="sh" id="ach-h"><i>$</i> <span class="cmd">ls -la ~/achievements</span></h2>
+    <div class="ach">
+      {achievements.map((a) => (
+        <article class={`card ${a.medal}`}>
+          <div class="tb"><span>{a.file}</span><span>rank {a.rank}</span></div>
+          <div class="bd">
+            <div class="medal">
+              <svg viewBox="0 0 54 68" aria-hidden="true">
+                <path pathLength="1" d="M14 0l13 26 13-26" fill="none" stroke="var(--m)" stroke-width="3" opacity=".55"></path>
+                <circle pathLength="1" cx="27" cy="45" r="19" fill="none" stroke="var(--m)" stroke-width="2.5"></circle>
+                <circle pathLength="1" cx="27" cy="45" r="14" fill="color-mix(in srgb,var(--m) 14%,transparent)" stroke="var(--m)" stroke-width="1" opacity=".7"></circle>
+                <text x="27" y="51" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-weight="700" font-size="18" fill="var(--m)">{a.rank}</text>
+              </svg>
+              <div class="rank"><span class="rk">#{a.rank}</span><small>{a.medal.toUpperCase()} / {ORD[a.rank]} PLACE</small></div>
+            </div>
+            <h3>{a.title}</h3>
+            <p class="cat">{a.category}</p>
+            <p class="s">{a.summary}</p>
+            <div class="stats">
+              {a.stats.map((s) => <span><b>{s.value}</b>{s.label}</span>)}
+            </div>
+          </div>
+          <i class="sheen" aria-hidden="true"></i>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  .ach { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  #achievements .card { background: var(--surface); border: 1px solid var(--line); min-width: 0; position: relative; overflow: hidden; }
+  #achievements .card .tb { display: flex; justify-content: space-between; gap: .6rem; padding: .45rem .8rem; border-bottom: 1px solid var(--line); font-size: .68rem; color: var(--muted); }
+  #achievements .card .bd { padding: 1.1rem 1rem 1.2rem; }
+  .medal { display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem; }
+  .medal svg { width: 3.4rem; height: 4.2rem; flex: none; overflow: visible; }
+  .rank { font-size: clamp(2.6rem, 7vw, 4rem); font-weight: 700; letter-spacing: -.06em; line-height: .9; }
+  .rank small { font-size: .7rem; font-weight: 500; letter-spacing: .14em; display: block; margin-top: .5rem; }
+  .card.gold { --m: var(--gold); }
+  .card.bronze { --m: var(--bronze); }
+  #achievements .card.gold, #achievements .card.bronze { border-color: color-mix(in srgb, var(--m) 38%, var(--line)); }
+  .card.gold .rank, .card.bronze .rank, .card.gold small, .card.bronze small { color: var(--m); }
+  .card.gold .rank, .card.bronze .rank { text-shadow: 0 0 20px color-mix(in srgb, var(--m) 30%, transparent); }
+  #achievements .card h3 { margin: 0 0 .2rem; font-size: 1rem; font-weight: 600; line-height: 1.3; }
+  #achievements .card .cat { margin: 0 0 .8rem; font-size: .72rem; color: var(--muted); }
+  #achievements .card p.s { margin: 0; font-size: .82rem; line-height: 1.6; color: color-mix(in srgb, var(--text) 82%, transparent); }
+  .stats { display: flex; flex-wrap: wrap; gap: .5rem 1.4rem; margin-top: 1rem; padding-top: .8rem; border-top: 1px dashed var(--line); font-size: .74rem; color: var(--muted); }
+  .stats b { display: block; font-size: 1.1rem; color: var(--text); font-weight: 600; letter-spacing: -.02em; }
+  /* the single sheen that crosses a card when it is revealed (gold/bronze tint only on these two cards) */
+  .sheen { position: absolute; top: 0; bottom: 0; left: 0; width: 2.6rem; transform: translateX(-4rem) skewX(-18deg); background: color-mix(in srgb, var(--m) 13%, transparent); pointer-events: none; opacity: 0; }
+  @media (max-width: 860px) { .ach { grid-template-columns: 1fr; } }
+</style>

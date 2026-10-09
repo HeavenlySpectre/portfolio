@@ -89,6 +89,8 @@ export interface FxOpts {
   duration?: number;
   delay?: number;
   ease?: string;
+  /** typing only: keep the caret blinking this many seconds after the last character, then restore the plain text */
+  hold?: number;
 }
 
 function txTween(el: HTMLElement, f: FxState, o: FxOpts): gsap.core.Tween {
@@ -113,7 +115,13 @@ function txTween(el: HTMLElement, f: FxState, o: FxOpts): gsap.core.Tween {
         if (s !== f.s) { f.s = s; f.v.textContent = s; }
       }
     },
-    onComplete() { txDone(el); },
+    onComplete() {
+      if (f.mode === 'type' && (o.hold ?? 0) > 0) {
+        f.v.textContent = f.full;
+        f.g.textContent = '';
+        gsap.delayedCall(o.hold!, () => { if ((el as FxEl).__fx === f) txDone(el); });
+      } else txDone(el);
+    },
   });
 }
 

@@ -1,0 +1,14 @@
+/* Shared pieces of the home sections below the spiral (ported from the home-full board).
+   Section-specific rules live in each component. */
+.sec { padding: clamp(4rem, 10vw, 7.5rem) 0 0; }
+.ab { font: 400 .92rem/1.65 var(--mono); }
+.wrap { max-width: 62rem; margin: 0 auto; padding: 0 var(--padx); }
+/* the board reset main's margins and lists; here it is scoped to the sections and kept at zero specificity */
+:where(.sec) :is(h2, h3, p, ul, ol, dl, dd) { margin: 0; }
+:where(.sec) :is(ul, ol) { padding: 0; list-style: none; }
+.sh { margin: 0 0 1.4rem; font-size: clamp(1rem, 2.2vw, 1.2rem); font-weight: 500; color: var(--text); display: flex; gap: .6rem; align-items: baseline; flex-wrap: wrap; }
+.sh i { font-style: normal; color: var(--accent); }
+.sh small { font-size: .72rem; color: var(--muted); font-weight: 400; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.sec .cursor { box-shadow: 0 0 12px var(--accent-glow); }
+@media (prefers-reduced-motion: reduce) { .fx-c::after { animation: none; } }

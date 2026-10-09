@@ -21,7 +21,10 @@ type Range = { start: number; end: number; max: number };
 async function ready(page: Page): Promise<Range> {
   await page.goto('/');
   await expect(page.locator('#loader')).toHaveCount(0, { timeout: 8000 });
+  // the spiral mounts lazily once #projects is within a viewport: with the sections above it in place that needs a scroll first
+  await page.evaluate(() => window.scrollTo(0, document.getElementById('projects')!.getBoundingClientRect().top + scrollY - innerHeight * 0.6));
   await page.waitForFunction(() => (window as any).__spiralCount === 1 && !!document.getElementById('projects')?.closest('.pin-spacer'), null, { timeout: 15000 });
+  await page.evaluate(() => window.scrollTo(0, 0));
   await page.waitForTimeout(600);
   return range(page);
 }

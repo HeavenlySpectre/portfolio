@@ -1,0 +1,38 @@
+---
+import { drivesIntro, principles } from '../data/principles';
+const pad2 = (n: number) => String(n).padStart(2, '0');
+---
+<section class="sec ab" id="drives" aria-labelledby="drives-h">
+  <div class="wrap">
+    <h2 class="sh" id="drives-h"><i>$</i> <span class="cmd">tail -f principles.log</span> <small>what drives me</small></h2>
+    <p class="bio" style="color:var(--muted)">{drivesIntro}</p>
+    <ol class="pr-list" id="prl">
+      {principles.map((p, i) => (
+        <li class={`pr on${i === principles.length - 1 ? ' last' : ''}`}>
+          <span class="tag"><b>[{pad2(i + 1)}]</b> <span class="tt">{p.tag}</span></span>
+          <q>{p.quote}</q>
+          <span class="why">{p.why}</span>
+        </li>
+      ))}
+    </ol>
+    <p class="prog" id="prog" aria-hidden="true">$ <b>[##########]</b> {principles.length}/{principles.length}  exit 0</p>
+  </div>
+</section>
+
+<style is:global>
+  .bio { max-width: 62ch; color: color-mix(in srgb, var(--text) 86%, transparent); }
+  .pr-list { display: grid; gap: clamp(2rem, 6vw, 3.6rem); margin: 2.4rem 0 2rem; border-left: 1px solid var(--line); padding-left: clamp(1rem, 3vw, 2rem); }
+  .pr { position: relative; }
+  .pr::before { content: ""; position: absolute; left: calc(-1 * clamp(1rem, 3vw, 2rem) - 4px); top: .55rem; width: 7px; height: 7px; background: var(--bg); border: 1px solid var(--muted); transition: .5s; }
+  .pr.on::before { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
+  .pr .tag { display: block; font-size: .72rem; color: var(--muted); margin-bottom: .4rem; }
+  .pr .tag b { color: var(--accent); font-weight: 500; }
+  .pr q { quotes: none; display: block; font-size: clamp(1.15rem, 3.4vw, 1.9rem); line-height: 1.25; letter-spacing: -.025em; font-weight: 500; max-width: 30ch; }
+  .pr .why { display: block; margin-top: .6rem; color: var(--muted); font-size: .82rem; max-width: 56ch; }
+  .pr .why::before { content: "└ "; color: var(--accent-dim); }
+  .pr.last q { position: relative; font-size: clamp(2.3rem, 10.5vw, 6rem); font-weight: 700; letter-spacing: -.055em; line-height: .95; text-transform: uppercase; color: var(--accent); max-width: none; text-shadow: 0 0 22px var(--accent-glow); }
+  /* the glow pulse: a copy of the text sits on top and its opacity is driven by --gl */
+  .pr.last q::after { content: attr(data-t); content: attr(data-t) / ""; position: absolute; left: 0; top: 0; width: 100%; color: var(--accent); text-shadow: 0 0 26px var(--accent), 0 0 60px var(--accent-glow); opacity: var(--gl, 0); pointer-events: none; }
+  .prog { font-size: .74rem; color: var(--muted); white-space: pre-wrap; overflow-wrap: anywhere; }
+  .prog b { color: var(--accent); font-weight: 500; }
+</style>

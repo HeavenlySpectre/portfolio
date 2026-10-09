@@ -1,0 +1,173 @@
+---
+import { buildRoles, commitRows, ymLabel } from '../lib/experience-model';
+
+/* Server-rendered vertical git log: readable without JavaScript and used below 720px and under reduced motion.
+   gitgraph.ts draws the lines on top of it and builds the horizontal graph with the scroll-driven HEAD playhead. */
+const roles = buildRoles();
+const rows = commitRows(roles);
+const WORDS = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six'];
+const reverse = (s: string) => s.split('').reverse().join('');
+---
+<section class="sec ab" id="experience" aria-labelledby="exp-h">
+  <div class="wrap exp" data-view="e1" id="exp">
+    <h2 class="sh" id="exp-h"><i>$</i> <span class="cmd">git log --graph --all</span> <small>experience</small></h2>
+    <div class="view" id="v1">
+      <div id="log">
+        <svg id="lg" aria-hidden="true"><defs><clipPath id="lgc"><rect id="lgr" x="-4" y="0" width="200" height="0"></rect></clipPath></defs><g id="lgg" clip-path="url(#lgc)"></g></svg>
+        <div class="ph1" id="ph1" aria-hidden="true"><span>HEAD</span></div>
+        <ol class="cl" id="cl">
+          {rows.map((w, i) => {
+            const r = w.role;
+            if (w.type === 'open') {
+              const head = i === 0;
+              return (
+                <li class="c" data-row="open" data-role={r.id} data-lane={r.lane}>
+                  <p class="cm anchor">
+                    <span class="h">commit {r.hash}</span>{' '}
+                    <span class="rf">
+                      {r.branch === 'main' ? '(main)' : r.e == null
+                        ? <>({head && <>HEAD <i>-&gt;</i> </>}origin/{r.branch})</>
+                        : `(${r.branch}, merged)`}
+                    </span>
+                  </p>
+                  <div class="hrow">
+                    <img class="lt" src={r.logo} alt={r.org} width="48" height="48" loading="lazy" />
+                    <h3>{r.org} <span>{r.role}</span></h3>
+                  </div>
+                  <p class="date">{r.date}</p>
+                  <ul class="diff">
+                    {r.b.map((t) => <li>{t}</li>)}
+                    {r.stints.length > 0 && <li>{WORDS[r.stints.length] ?? r.stints.length} consecutive courses, committed above.</li>}
+                  </ul>
+                </li>
+              );
+            }
+            if (w.type === 'merge') {
+              return (
+                <li class="c mg" data-row="merge" data-role={r.id} data-lane="0">
+                  <p class="cm anchor"><span class="h">merge {reverse(r.hash)}</span>{' '}<span class="rf">(main)</span></p>
+                  <h3>Merge branch '{r.branch}' <span class="date">{r.org} · {ymLabel(r.e!)} · exited 0</span></h3>
+                </li>
+              );
+            }
+            const st = w.stint!;
+            return (
+              <li class="c sub" data-row="sub" data-role={r.id} data-lane={r.lane}>
+                <p class="cm anchor"><span class="h">{st.hash}</span> course</p>
+                <h3>{st.name}</h3>
+                <p class="date">{st.date}</p>
+                <ul class="diff">{st.b.map((t) => <li>{t}</li>)}</ul>
+              </li>
+            );
+          })}
+        </ol>
+      </div>
+      <p class="end">(END)</p>
+    </div>
+
+    <div class="view" id="v2">
+      <div class="hs-wrap" id="hw">
+        <div class="hs" id="hs">
+          <div class="hs-bar"><i id="hs-b"></i></div>
+          <div class="hs-hint">scroll to move along the timeline &middot; hover or tap a commit</div>
+          <div class="hs-view"><div class="hs-track" id="ht2"></div></div>
+          <div class="hs-det" id="hs-det" aria-live="polite"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  #experience .view { display: none; }
+  #experience .exp[data-view=e1] #v1, #experience .exp[data-view=e2] #v2 { display: block; }
+  #experience .diff { margin-top: .6rem; font-size: .82rem; display: grid; gap: .3rem; }
+  #experience .diff li { padding-left: 1.4ch; text-indent: -1.4ch; color: color-mix(in srgb, var(--text) 82%, transparent); max-width: 70ch; }
+  #experience .diff li::before { content: "+ "; color: var(--accent); }
+  #experience .date { font-size: .76rem; color: var(--muted); }
+  .lt { flex: none; width: 48px; height: 48px; object-fit: contain; background: #e8f3ec; border: 1px solid var(--line); border-radius: 8px; padding: 5px; }
+
+  /* vertical git graph */
+  #log { position: relative; padding-left: 64px; }
+  #lg { position: absolute; left: 0; top: 0; width: 64px; pointer-events: none; overflow: visible; }
+  #experience .c { position: relative; padding: 0 0 2.2rem; min-width: 0; transition: opacity .45s ease, transform .45s ease; }
+  #experience .c.sub, #experience .c.mg { padding-bottom: 1.1rem; }
+  #experience .cm { font-size: .74rem; color: var(--muted); line-height: 1.8; overflow-wrap: anywhere; }
+  #experience .cm .h { color: #c9a94a; }
+  #experience .cm .rf { color: var(--accent); }
+  #experience .cm .rf i { font-style: normal; color: var(--muted); }
+  #experience .c h3 { font-size: clamp(1rem, 2.4vw, 1.2rem); font-weight: 600; line-height: 1.3; letter-spacing: -.02em; margin-top: .2rem; }
+  #experience .c h3 span { display: block; font-weight: 400; font-size: .84rem; color: var(--text); letter-spacing: 0; }
+  #experience .c.sub h3, #experience .c.mg h3 { font-size: .9rem; font-weight: 500; }
+  #experience .c.sub .diff { margin-top: .2rem; font-size: .78rem; }
+  #experience .c.sub .diff li::before { content: "~ "; color: var(--muted); }
+  #experience .c.mg h3 { color: var(--muted); }
+  #experience .c.mg h3 span { display: inline; font-size: .76rem; color: var(--muted); }
+  #experience .hrow { display: flex; gap: .8rem; align-items: flex-start; margin-top: .2rem; }
+  #experience .hrow h3 { margin-top: 0; min-width: 0; overflow-wrap: anywhere; }
+  #experience .end { font-size: .72rem; color: var(--muted); padding-top: .4rem; }
+  #experience .c.pre { opacity: 0; transform: translateX(-10px); }
+  #lg .dn.pre { opacity: 0; }
+  #lg .dn { transform-box: fill-box; transform-origin: center; }
+  #lg .dn.pop { animation: dpop .4s cubic-bezier(.3, 1.5, .5, 1) both; }
+  #lg .dn.done { animation: none; }
+  #lg .rg { fill: none; stroke-width: 2; opacity: 0; pointer-events: none; transform-box: fill-box; transform-origin: center; }
+  #lg .rg.rp { animation: ringp .85s ease-out both; }
+  #lg .pk { fill: #e6f5ec; stroke: var(--accent); stroke-opacity: .35; stroke-width: 5; pointer-events: none; }
+  #log .ph1 { position: absolute; left: 0; right: 0; top: 0; height: 0; pointer-events: none; z-index: 2; opacity: 0; transition: opacity .3s; will-change: transform; }
+  #log .ph1.on { opacity: 1; }
+  #log .ph1::before { content: ""; position: absolute; left: 0; right: 0; top: -1px; height: 2px; background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 22%, transparent) 65%, transparent); box-shadow: 0 0 12px var(--accent-glow); }
+  #log .ph1 span { position: absolute; right: 0; top: -1.7em; padding: 0 .45em; font-size: .62rem; font-weight: 700; line-height: 1.5; background: var(--accent); color: #06100a; }
+
+  /* horizontal git graph (pinned by position: sticky, so the page keeps scrolling natively and never traps the wheel) */
+  .hs-wrap { position: relative; margin: 0 calc(-1 * var(--padx)); }
+  .hs { position: sticky; top: 2.9rem; overflow: hidden; border-block: 1px solid var(--line); background: var(--surface); }
+  .hs-view { position: relative; height: 350px; overflow: hidden; }
+  .hs-track { position: absolute; left: 0; top: 0; will-change: transform; }
+  .hs svg { display: block; font-family: var(--mono); }
+  .hs .nd { cursor: pointer; outline: none; transition: opacity .25s; }
+  .hs .nd:focus-visible circle.dot { stroke-width: 3.5; }
+  .hs .nd:hover circle.dot, .hs .nd.sel circle.dot { fill: var(--accent); }
+  .hs text { fill: var(--muted); font-size: 11px; }
+  .hs text.o { fill: var(--text); font-weight: 600; font-size: 12px; }
+  .hs text.y { fill: var(--accent); font-size: 12px; font-weight: 600; }
+  .hs-det { position: relative; margin: 0 var(--padx) .8rem; background: rgb(9 12 10 / .94); border: 1px solid var(--line); padding: .7rem .9rem; font-size: .76rem; display: flex; gap: .8rem; align-items: flex-start; }
+  .hs-det .dtx { min-width: 0; }
+  .hs-det b { color: var(--accent); font-weight: 600; }
+  .hs-det .diff { margin-top: .3rem; font-size: .74rem; gap: .15rem; }
+  .hs-bar { position: absolute; left: 0; right: 0; top: 0; height: 2px; background: var(--line); }
+  .hs-bar i { display: block; height: 100%; width: 0; background: var(--accent); }
+  .hs-hint { position: absolute; top: .6rem; right: var(--padx); font-size: .68rem; color: var(--muted); pointer-events: none; transition: opacity .3s; }
+  .hs.mv .hs-hint { opacity: 0; }
+  .hs .gv { transition: opacity .25s; }
+  .hs .gv.pre { opacity: 0; pointer-events: none; }
+  .hs .nd .dot, .hs .mgd { transform-box: fill-box; transform-origin: center; }
+  .hs .nd.pop .dot { animation: dpop .45s cubic-bezier(.3, 1.5, .5, 1) both; }
+  .hs .mgd.pre { opacity: 0; }
+  .hs .mgd.pop { animation: dpop .45s cubic-bezier(.3, 1.5, .5, 1) both; }
+  @keyframes dpop { from { transform: scale(0); } 60% { transform: scale(1.4); } to { transform: scale(1); } }
+  /* armed (scroll-driven) state */
+  .hs svg.arm .tick { stroke: #25362c; transition: stroke .25s; }
+  .hs svg.arm .tick.on { stroke: var(--accent); stroke-opacity: .85; }
+  .hs svg.arm text.tl { fill: #3b5345; transition: fill .25s; }
+  .hs svg.arm text.tl.on { fill: var(--muted); }
+  .hs svg.arm text.yl { fill: #3b5345; transition: fill .25s; }
+  .hs svg.arm text.yl.on { fill: var(--accent-dim); }
+  .hs svg.arm text.yl.cur { fill: var(--accent); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+  .hs .nd .rg, .hs .tip .rg { fill: none; stroke-width: 2; opacity: 0; pointer-events: none; transform-box: fill-box; transform-origin: center; }
+  .hs .nd.rp .rg, .hs .tip.tp .rg { animation: ringp .85s ease-out both; }
+  .hs .tip .rg { stroke-width: 1.5; }
+  @keyframes ringp { from { opacity: .9; transform: scale(1); } to { opacity: 0; transform: scale(3.6); } }
+  .hs .mgt { fill: var(--muted); font-size: 10.5px; opacity: .7; }
+  .hs .mgt.rp { animation: mgtf 2.8s ease-out both; }
+  @keyframes mgtf { 0%, 55% { fill: var(--accent); opacity: 1; } 100% { fill: var(--muted); opacity: .7; } }
+  .hs .ph { pointer-events: none; transition: opacity .3s; will-change: transform; }
+  .hs .ph.pre { opacity: 0; }
+  .hs .phg { stroke: var(--accent); stroke-width: 13; stroke-opacity: .06; }
+  .hs .phg2 { stroke: var(--accent); stroke-width: 5; stroke-opacity: .16; }
+  .hs .phc { stroke: var(--accent); stroke-width: 1.5; }
+  .hs .pht { fill: var(--accent); }
+  .hs text.phx { fill: #06100a; font-weight: 700; font-size: 10.5px; letter-spacing: .02em; }
+  .hs .pk { fill: #e6f5ec; stroke: var(--accent); stroke-opacity: .35; stroke-width: 5; pointer-events: none; }
+  @media (prefers-reduced-motion: reduce) { #experience .c { transition: none; } .hs .nd, .hs .gv { transition: none; } }
+</style>

@@ -1,0 +1,49 @@
+---
+import { certifications, education, languages } from '../data/education';
+---
+<section class="sec ab" id="education" aria-label="Education and certifications">
+  <div class="wrap">
+    <div class="duo">
+      <div class="blk">
+        <h3><b>$</b> <span class="cmd">cat education.md</span></h3>
+        <div class="it">
+          <strong>{education.schoolShort}</strong>
+          <span>{education.program}</span>
+          <span>{education.period} &middot; GPA {education.gpa}</span>
+        </div>
+      </div>
+      <div class="blk">
+        <h3><b>$</b> <span class="cmd">cat languages.md</span></h3>
+        {languages.map((l) => <div class="it"><strong>{l.name}</strong><span>{l.level}</span></div>)}
+      </div>
+    </div>
+    <div class="blk" style="margin-top:2.2rem">
+      <h3><b>$</b> <span class="cmd">cat certifications.md</span></h3>
+      <div class="certs">
+        {certifications.map((c) => (
+          <div class="it">
+            <strong>{c.title}</strong>
+            <span>{c.issuer} &middot; {c.issuedShort}</span>
+            <span class="id">ID {c.id} &middot; <a href={c.url} target="_blank" rel="noopener noreferrer">{c.action}</a></span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  .duo { display: grid; grid-template-columns: 1fr 1.4fr; gap: 1.6rem 2.4rem; }
+  .blk h3 { font-size: .76rem; font-weight: 400; color: var(--muted); padding-bottom: .4rem; margin-bottom: .8rem; border-bottom: 1px solid var(--line); }
+  .blk h3 b { color: var(--accent); font-weight: 500; }
+  .it { margin-bottom: 1rem; min-width: 0; }
+  .it:last-child { margin-bottom: 0; }
+  .it strong { display: block; font-weight: 500; font-size: .88rem; line-height: 1.4; }
+  .it span { display: block; font-size: .76rem; color: var(--muted); }
+  .certs { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem 2rem; margin-top: 2rem; }
+  .certs .it { margin: 0; }
+  .certs a { color: var(--accent); text-decoration: none; border-bottom: 1px dashed var(--accent-dim); }
+  .certs a:hover { border-bottom-style: solid; }
+  .id { overflow-wrap: anywhere; }
+  @media (max-width: 760px) { .duo { grid-template-columns: 1fr; } .certs { grid-template-columns: 1fr; } }
+</style>
