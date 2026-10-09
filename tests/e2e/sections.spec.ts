@@ -9,7 +9,7 @@ async function open(page: Page) {
   await page.addInitScript(() => { try { sessionStorage.setItem('kv-loader-seen', '1'); } catch { /* ignore */ } });
   const errs: string[] = [];
   page.on('pageerror', (e) => errs.push(String(e)));
-  await page.goto('/');
+  await page.goto('/?e2e'); // ?e2e exposes the git graph probe hook (window.__exp)
   await expect(page.locator('#loader')).toHaveCount(0);
   await page.waitForTimeout(400);
   return errs;
@@ -124,6 +124,56 @@ test('experience: branches are never drawn past the playhead', async ({ page }) 
     for (const t of pr.tips) if (t && t.drawn > 0) { seenDrawn++; expect(t.tipX, `tip at p=${p}`).toBeLessThanOrEqual(pr.xP + 1.5); }
   }
   expect(seenDrawn).toBeGreaterThan(4);
+});
+
+test('experience: the graph svg is a group, with no interactive element nested in an img', async ({ page }) => {
+  await open(page);
+  expect(await page.locator('#experience [role=img] [role=button]').count()).toBe(0);
+  await expect(page.locator('#ht2 svg')).toHaveAttribute('role', 'group');
+  await expect(page.locator('#ht2 svg')).toHaveAttribute('aria-label', /.+/);
+  expect(await page.locator('#ht2 .nd[role=button]').count()).toBeGreaterThan(0);
+});
+
+test('experience: the probe hook only exists with ?e2e', async ({ page }) => {
+  await page.addInitScript(() => { try { sessionStorage.setItem('kv-loader-seen', '1'); } catch { /* ignore */ } });
+  await page.goto('/');
+  await expect(page.locator('#ht2 svg')).toBeAttached();
+  expect(await page.evaluate(() => '__exp' in window)).toBe(false);
+});
+
+test('experience: tabbing never lands on a hidden or off-screen node and never scrolls the graph view', async ({ page }) => {
+  await open(page);
+  // before the replay starts nothing is revealed, so no node is in the tab order
+  expect(await page.locator('#ht2 .nd[tabindex="0"]').count()).toBe(0);
+  const hw = await docTop(page, '#hw');
+  const span = await page.evaluate(() => { const w = document.getElementById('hw')!, s = document.getElementById('hs')!; return w.offsetHeight - s.clientHeight; });
+  await page.evaluate((y) => window.scrollTo(0, y - 500), hw);
+  await page.waitForTimeout(1200);
+  await page.evaluate(([y, s]) => window.scrollTo(0, y - 46 + s * 0.6), [hw, span] as const);
+  await page.waitForTimeout(1200);
+  await page.evaluate(() => { const h = document.getElementById('exp-h')!; h.tabIndex = -1; h.focus({ preventScroll: true }); });
+  let nodes = 0;
+  for (let i = 0; i < 30; i++) {
+    await page.keyboard.press('Tab');
+    const info = await page.evaluate(() => {
+      const a = document.activeElement as Element | null;
+      const nd = a?.closest('.nd');
+      const view = document.querySelector<HTMLElement>('.hs-view')!, hs = document.getElementById('hs')!;
+      const base = { inExp: !!a?.closest('#experience'), sl: view.scrollLeft + hs.scrollLeft, st: view.scrollTop + hs.scrollTop };
+      if (!nd) return { ...base, nd: false, op: 1, vis: true };
+      const r = nd.getBoundingClientRect(), v = view.getBoundingClientRect();
+      return { ...base, nd: true, op: +getComputedStyle(nd).opacity, vis: r.right > v.left && r.left < v.right && r.bottom > v.top && r.top < v.bottom };
+    });
+    expect(info.sl, 'graph view scrollLeft').toBe(0);
+    expect(info.st, 'graph view scrollTop').toBe(0);
+    if (info.nd) { nodes++; expect(info.op, 'focused node opacity').toBeGreaterThan(0); expect(info.vis, 'focused node is on screen').toBe(true); }
+    if (!info.inExp) break;
+  }
+  expect(nodes).toBeGreaterThan(0);
+  // even a programmatic focus on a node that is off-screen must not desync the track
+  await page.evaluate(() => (document.querySelector('#ht2 .nd[data-k="aitt"]') as unknown as HTMLElement).focus());
+  await page.waitForTimeout(200);
+  expect(await page.evaluate(() => { const v = document.querySelector<HTMLElement>('.hs-view')!, h = document.getElementById('hs')!; return v.scrollLeft + h.scrollLeft + v.scrollTop + h.scrollTop; })).toBe(0);
 });
 
 test('experience: wheel traversal releases at both ends and never traps', async ({ page }) => {

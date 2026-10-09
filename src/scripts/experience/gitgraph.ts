@@ -19,7 +19,7 @@ export interface GitGraph {
 type El = HTMLElement;
 type Sv = SVGElement;
 interface Path { el: SVGPathElement; x0: number; x1: number; L: number; xs: number[] | null; ls: number[] | null; off: number }
-interface RvItem { el: Sv; x: number; on: boolean; nd: boolean; ty: Sv[] }
+interface RvItem { el: Sv; x: number; on: boolean; nd: boolean; ty: Sv[]; tab?: boolean }
 interface Tick { el: Sv; x: number; on: boolean }
 interface YearItem { el: Sv; x: number; y: string; on?: boolean }
 interface PkLine { x0: number; y: number; span: number; gap: number; els: Sv[]; v: boolean[] }
@@ -56,7 +56,7 @@ export function mountGitGraph(section: HTMLElement): GitGraph {
 
   const exp = q('#exp');
   const cl = q('#cl'), log = q('#log'), svg = q<SVGSVGElement>('#lg'), g = q<SVGGElement>('#lgg'), clip = q<SVGRectElement>('#lgr'), ph1 = q('#ph1');
-  const hw = q('#hw'), hs = q('#hs'), ht2 = q('#ht2'), hdet = q('#hs-det'), hb = q('#hs-b');
+  const hw = q('#hw'), hs = q('#hs'), ht2 = q('#ht2'), hdet = q('#hs-det'), hb = q('#hs-b'), hsView = q('.hs-view');
   const cleanups: (() => void)[] = [];
   const on = <K extends keyof WindowEventMap>(t: Window, k: K, f: (e: WindowEventMap[K]) => void, o?: AddEventListenerOptions) => {
     t.addEventListener(k, f, o);
@@ -170,7 +170,7 @@ export function mountGitGraph(section: HTMLElement): GitGraph {
   const CARD = { shown: null as string | null, t: 0, want: null as string | null, timer: 0 };
 
   (function buildE2() {
-    let s = `<svg width="${W2}" height="${SH}" viewBox="0 0 ${W2} ${SH}" role="img" aria-label="Horizontal git graph of roles from ${Math.floor(T0 / 12)} to now">`;
+    let s = `<svg width="${W2}" height="${SH}" viewBox="0 0 ${W2} ${SH}" role="group" aria-label="Horizontal git graph of roles from ${Math.floor(T0 / 12)} to now">`;
     for (let m = T0; m <= NOW + 1; m++) {
       const yr = m % 12 === 0 || m === T0;
       s += `<line class="tick" data-x="${X(m)}" x1="${X(m)}" x2="${X(m)}" y1="${AY}" y2="${AY + (yr ? 10 : 5)}" stroke="#25362c"/>`;
@@ -188,14 +188,14 @@ export function mountGitGraph(section: HTMLElement): GitGraph {
         s += `<path class="br" data-x0="${xs - 30}" data-x1="${x1}" d="${d}" stroke="${c}" stroke-width="2" fill="none"/>`;
       }
       const lab = r.short || r.org, dl = `${r.role} ${DOT} ${r.e == null ? 'since ' + ymLabel(r.s) : ymLabel(r.s) + ' - ' + ymLabel(r.e)}`;
-      s += `<g class="nd gv" data-x="${xs}" tabindex="0" role="button" data-k="${r.id}" aria-label="${esc(`${r.org}, ${r.role}, ${r.date}`)}"><circle cx="${xs}" cy="${y}" r="16" fill="transparent"/><circle class="rg" cx="${xs}" cy="${y}" r="6" stroke="${c}"/><circle class="dot" cx="${xs}" cy="${y}" r="6" fill="#090c0a" stroke="${c}" stroke-width="2.5"/>` +
+      s += `<g class="nd gv" data-x="${xs}" tabindex="-1" role="button" data-k="${r.id}" aria-label="${esc(`${r.org}, ${r.role}, ${r.date}`)}"><circle cx="${xs}" cy="${y}" r="16" fill="transparent"/><circle class="rg" cx="${xs}" cy="${y}" r="6" stroke="${c}"/><circle class="dot" cx="${xs}" cy="${y}" r="6" fill="#090c0a" stroke="${c}" stroke-width="2.5"/>` +
         `<text class="o ty" data-full="${esc(lab)}" x="${xs + 12}" y="${y - 20}">${esc(lab)}</text><text class="ty" data-full="${esc(dl)}" x="${xs + 12}" y="${y - 7}">${esc(dl)}</text></g>`;
       if (r.e != null) s += `<circle class="mgd gv" data-x="${x1}" cx="${x1}" cy="${LY[0]}" r="4.5" fill="${c}"/><text class="mgt gv ty" data-x="${x1}" data-full="merged ${DOT} exit 0" x="${x1 + 9}" y="${LY[0] - 9}">merged ${DOT} exit 0</text>`;
       if (r.e == null) s += `<g class="tip gv" data-x="${x1}"><circle class="rg" cx="${x1}" cy="${y}" r="4" stroke="${c}"/><circle cx="${x1}" cy="${y}" r="3.2" fill="${c}"/></g>`;
       if (r.e == null && r.lane) s += `<text class="gv hd" data-x="${x1}" x="${x1 + 8}" y="${y + 4}">HEAD</text>`;
       r.stints.forEach((st, i) => {
         const sx = X(st.s) + (i === 0 ? 20 : 0);
-        s += `<g class="nd gv" data-x="${sx}" tabindex="0" role="button" data-k="${r.id}:${i}" aria-label="${esc(`${st.name}, ${st.date}`)}"><circle cx="${sx}" cy="${y}" r="14" fill="transparent"/><circle class="rg" cx="${sx}" cy="${y}" r="3.8" stroke="${c}"/><circle class="dot" cx="${sx}" cy="${y}" r="3.8" fill="#090c0a" stroke="${c}" stroke-width="2"/><text class="ty" data-full="${esc(st.tiny)}" x="${sx - (i === 0 ? 8 : 4)}" y="${y + 20}">${esc(st.tiny)}</text></g>`;
+        s += `<g class="nd gv" data-x="${sx}" tabindex="-1" role="button" data-k="${r.id}:${i}" aria-label="${esc(`${st.name}, ${st.date}`)}"><circle cx="${sx}" cy="${y}" r="14" fill="transparent"/><circle class="rg" cx="${sx}" cy="${y}" r="3.8" stroke="${c}"/><circle class="dot" cx="${sx}" cy="${y}" r="3.8" fill="#090c0a" stroke="${c}" stroke-width="2"/><text class="ty" data-full="${esc(st.tiny)}" x="${sx - (i === 0 ? 8 : 4)}" y="${y + 20}">${esc(st.tiny)}</text></g>`;
       });
     }
     const main = roles.find((r) => r.lane === 0) ?? roles[0];
@@ -223,7 +223,7 @@ export function mountGitGraph(section: HTMLElement): GitGraph {
       };
       n.addEventListener('mouseenter', () => go(false));
       n.addEventListener('mouseleave', () => { if (E2.ovr && !E2.ovr.sticky) { E2.ovr = null; put(E2.cur || 'aitt'); } });
-      n.addEventListener('focus', () => go(true));
+      n.addEventListener('focus', () => { resetScroll(); go(true); });
       n.addEventListener('click', () => go(true));
     }
     E2.ph = q<Sv>('#ph', ht2); E2.phx = q<Sv>('.phx', E2.ph as unknown as ParentNode); E2.pht = q<Sv>('.pht', E2.ph as unknown as ParentNode);
@@ -323,7 +323,22 @@ export function mountGitGraph(section: HTMLElement): GitGraph {
     hb.style.width = (p * 100) + '%';
     if (E2.armed) E2.ph.style.transform = `translateX(${E2.xP.toFixed(1)}px)`;
     drawE2();
+    syncFocus();
   }
+
+  /* Only nodes that are revealed and on screen are in the tab order: tabbing never reaches an invisible node. */
+  function syncFocus() {
+    const vw = hs.clientWidth, shift = E2.q * R2;
+    for (const o of E2.rv) {
+      if (!o.nd) continue;
+      const x = o.x - shift;
+      const ok = (!E2.armed || o.on) && x >= 6 && x <= vw - 6;
+      if (ok !== o.tab) { o.tab = ok; o.el.setAttribute('tabindex', ok ? '0' : '-1'); }
+    }
+  }
+  /* the views clip with overflow hidden, and a focus (or find-in-page) can still scroll them: the track is moved by transform only, so keep them at 0 */
+  const resetScroll = () => { for (const e of [hs, hsView]) { if (e.scrollLeft) e.scrollLeft = 0; if (e.scrollTop) e.scrollTop = 0; } };
+  for (const e of [hs, hsView]) { e.addEventListener('scroll', resetScroll); cleanups.push(() => e.removeEventListener('scroll', resetScroll)); }
 
   /* x -> drawn length of a path, from a table sampled once (paths are monotone in x), so a branch ends exactly under the playhead */
   function lut(o: Path) {
@@ -506,7 +521,7 @@ export function mountGitGraph(section: HTMLElement): GitGraph {
     },
   };
 
-  /* test hook: where the playhead is, which role the card shows and how far each branch is drawn */
+  /* test hook, only with ?e2e in the URL: where the playhead is, which role the card shows and how far each branch is drawn */
   const probeApi = {
     probe() {
       const tips = E2.paths.map((o) => {
@@ -520,7 +535,7 @@ export function mountGitGraph(section: HTMLElement): GitGraph {
       };
     },
   };
-  (window as unknown as { __exp?: unknown }).__exp = probeApi;
+  if (/[?&]e2e/.test(location.search)) (window as unknown as { __exp?: unknown }).__exp = probeApi;
 
   armE2();
   sync();
