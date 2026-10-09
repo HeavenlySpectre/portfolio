@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync, readdirSync } from 'node:fs';
 import { parse } from 'yaml';
+import * as simpleIcons from 'simple-icons';
 import { projectSchema } from '../../src/lib/project-schema';
 import { achievements } from '../../src/data/achievements';
 import { organizations } from '../../src/data/organizations';
@@ -69,5 +70,10 @@ describe('section data', () => {
     for (const r of experience) expect(r.logo).toMatch(/^\/media\/logos\//);
   });
   it('toolkit has 9 groups', () => expect(toolkit).toHaveLength(9));
+  it('every toolkit icon slug exists in installed simple-icons', () => {
+    const have = new Set(Object.values(simpleIcons).map((v) => (v as { slug?: string })?.slug).filter(Boolean));
+    const slugs = toolkit.flatMap((g) => g.items.map((i) => i.icon).filter((s): s is string => !!s));
+    expect(slugs.filter((s) => !have.has(s))).toEqual([]);
+  });
   it('6 certifications', () => expect(certifications).toHaveLength(6));
 });
