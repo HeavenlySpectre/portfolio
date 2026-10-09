@@ -13,3 +13,6 @@ install-claude-skills.ps1
 # CV source files: only the redacted public copy is committed (see docs/content/contact.md)
 public/media/documents/*.pdf
 !public/media/documents/kevin-anugerah-faza-cv.pdf
+
+# SDD scratch
+.superpowers/
