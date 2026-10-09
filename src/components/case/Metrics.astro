@@ -1,0 +1,20 @@
+---
+import type { Project } from '../../lib/project-schema';
+interface Props { metrics: Project['metrics'] }
+const { metrics } = Astro.props;
+// plain numbers count up, everything else (1st, 10 of 81, 15/15) prints in one step
+const counts = (v: string) => /^\d[\d.,]*%?$/.test(v);
+---
+<section class="cs-sec" aria-labelledby="cs-numbers">
+  <div class="cs-w">
+    <h2 id="cs-numbers" data-fx="print">Numbers</h2>
+    <div class="cs-metrics">
+      {metrics.map((m, i) => (
+        <div class="cs-metric">
+          <div class="cs-mv" data-fx={counts(m.value) ? 'count' : 'print'} data-fx-delay={(0.05 * i).toFixed(2)}>{m.value}</div>
+          <div class="cs-ml">{m.label}</div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

@@ -11,8 +11,10 @@ interface Props {
   canonical: string;
   ogImage: string;
   jsonLd: object[];
+  /** false on pages other than the home page: the nav then links back to the home sections */
+  home?: boolean;
 }
-const { title, description, canonical, ogImage, jsonLd } = Astro.props;
+const { title, description, canonical, ogImage, jsonLd, home = true } = Astro.props;
 ---
 <!doctype html>
 <html lang="en">
@@ -35,7 +37,7 @@ const { title, description, canonical, ogImage, jsonLd } = Astro.props;
     {jsonLd.map((d) => <script type="application/ld+json" set:html={JSON.stringify(d)} />)}
   </head>
   <body>
-    <Nav />
+    <Nav home={home} />
     <slot />
     <Footer />
     <script>

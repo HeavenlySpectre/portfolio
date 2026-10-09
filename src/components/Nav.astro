@@ -1,14 +1,18 @@
 ---
+/* On the home page the anchors are in-page. Elsewhere (case studies) they lead back to the home sections and ~/projects stays marked. */
+interface Props { home?: boolean }
+const { home = true } = Astro.props;
+const base = home ? '' : '/';
 const items = [
-  { label: '~/projects', href: '#projects', sec: 'projects' },
-  { label: '~/experience', href: '#experience', sec: 'experience' },
-  { label: '~/about', href: '#drives', sec: 'drives' },
-  { label: '~/contact', href: '#contact', sec: 'contact' },
+  { label: '~/projects', href: `${base}#projects`, sec: 'projects' },
+  { label: '~/experience', href: `${base}#experience`, sec: 'experience' },
+  { label: '~/about', href: `${base}#drives`, sec: 'drives' },
+  { label: '~/contact', href: `${base}#contact`, sec: 'contact' },
   { label: 'cv', href: '/media/documents/kevin-anugerah-faza-cv.pdf', sec: 'cv' },
 ];
 ---
-<header class="nav" id="nav">
-  <a class="brand" href="#top" data-sec="top">kevin@portfolio</a>
+<header class="nav" id="nav" data-active={home ? undefined : 'projects'}>
+  <a class="brand" href={home ? '#top' : '/'} data-sec="top">kevin@portfolio</a>
   <ul>
     {items.map((i) => <li><a href={i.href} data-sec={i.sec}>{i.label}</a></li>)}
   </ul>
@@ -17,7 +21,7 @@ const items = [
 </header>
 
 <div class="menu" id="menu" role="dialog" aria-modal="true" aria-label="Menu" hidden>
-  <div class="menu-top"><a class="brand" href="#top">kevin@portfolio</a><button id="menu-close" type="button">close</button></div>
+  <div class="menu-top"><a class="brand" href={home ? '#top' : '/'}>kevin@portfolio</a><button id="menu-close" type="button">close</button></div>
   <p class="menu-ps"><b>kevin@portfolio</b>:~$ ls</p>
   <ul class="menu-list">
     {items.map((i) => <li><a href={i.href}><i>&gt;</i>{i.label}</a></li>)}

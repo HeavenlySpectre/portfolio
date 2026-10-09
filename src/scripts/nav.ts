@@ -36,7 +36,10 @@ const links = [...nav.querySelectorAll<HTMLAnchorElement>('ul a')];
       if (anchors.has(s.id)) ak = s.id;
       if (s.getBoundingClientRect().top <= probe) key = ak;
     }
-    if (atEnd && anchors.has('contact')) key = 'contact';
+    // only where the page really has a contact section (a short page is "at the end" from the start)
+    if (atEnd && anchors.has('contact') && document.getElementById('contact')) key = 'contact';
+    // pages without home sections (case studies) pin one item
+    if (nav.dataset.active) key = nav.dataset.active;
     if (key === cur) return;
     cur = key;
     brand.classList.toggle('on', key === 'top');

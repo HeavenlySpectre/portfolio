@@ -1,0 +1,88 @@
+---
+import '../../styles/case.css';
+import { getCollection, type CollectionEntry } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import CaseHeader from '../../components/case/CaseHeader.astro';
+import Metrics from '../../components/case/Metrics.astro';
+import PipelineDiagram from '../../components/case/PipelineDiagram.astro';
+import PrevNext from '../../components/case/PrevNext.astro';
+import { parsePipeline } from '../../lib/pipeline';
+import { parseCaseBody, type Block } from '../../lib/case-body';
+
+interface Props { entry: CollectionEntry<'projects'>; prev: CollectionEntry<'projects'>; next: CollectionEntry<'projects'>; total: number }
+
+export async function getStaticPaths() {
+  const all = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+  return all.map((entry, i) => ({
+    params: { slug: entry.data.slug },
+    props: { entry, prev: all[(i - 1 + all.length) % all.length], next: all[(i + 1) % all.length], total: all.length + 1 },
+  }));
+}
+
+const { entry, prev, next, total } = Astro.props;
+const p = entry.data;
+const body = parseCaseBody(entry.body ?? '');
+const pipeline = parsePipeline(entry.body ?? '');
+const url = `https://kevinanugerah.dev/projects/${p.slug}/`;
+const pad2 = (n: number) => String(n).padStart(2, '0');
+const jsonLd = [
+  { '@context': 'https://schema.org', '@type': 'CreativeWork', name: p.title, description: p.seo_description, url, author: { '@type': 'Person', name: 'Kevin Anugerah Faza' }, keywords: p.stack.join(', ') },
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://kevinanugerah.dev/' },
+    { '@type': 'ListItem', position: 2, name: 'Projects', item: 'https://kevinanugerah.dev/#projects' },
+    { '@type': 'ListItem', position: 3, name: p.title, item: url },
+  ] },
+];
+---
+<Base
+  title={`${p.title} | Kevin Anugerah Faza`}
+  description={p.seo_description}
+  canonical={url}
+  ogImage={`https://kevinanugerah.dev/og/projects/${p.slug}.png`}
+  jsonLd={jsonLd}
+  home={false}
+>
+  <main class="cs">
+    <CaseHeader project={p} />
+    <Metrics metrics={p.metrics} />
+
+    <section class="cs-sec" aria-labelledby="cs-problem">
+      <div class="cs-w">
+        <h2 id="cs-problem" data-fx="print">Problem</h2>
+        {body.problem.map((b: Block) => b.type === 'p' ? <p class="cs-prose" data-fx="print">{b.text}</p> : <ul class="cs-list">{b.items.map((i) => <li>{i}</li>)}</ul>)}
+      </div>
+    </section>
+
+    <section class="cs-sec" aria-labelledby="cs-how">
+      <div class="cs-w cs-wide-w">
+        <h2 id="cs-how" data-fx="print">How it works</h2>
+        {body.how.map((b: Block) => b.type === 'p' ? <p class="cs-prose" data-fx="print">{b.text}</p> : <ul class="cs-list">{b.items.map((i) => <li>{i}</li>)}</ul>)}
+        {pipeline.nodes.length > 0 && <PipelineDiagram pipeline={pipeline} title={p.title} />}
+      </div>
+    </section>
+
+    <section class="cs-sec" aria-labelledby="cs-decisions">
+      <div class="cs-w">
+        <h2 id="cs-decisions" data-fx="print">Key decisions</h2>
+        {body.decisions.map((b: Block) => b.type === 'ul'
+          ? <ol class="cs-cards">{b.items.map((t, i) => <li class="cs-card" data-fx="print"><span class="no">{pad2(i + 1)}</span><p>{t}</p></li>)}</ol>
+          : <p class="cs-prose" data-fx="print">{b.text}</p>)}
+      </div>
+    </section>
+
+    <section class="cs-sec" aria-labelledby="cs-results">
+      <div class="cs-w">
+        <h2 id="cs-results" data-fx="print">Results</h2>
+        {body.results.map((b: Block) => b.type === 'ul'
+          ? <ul class="cs-results">{b.items.map((t) => <li data-fx="print">{t}</li>)}</ul>
+          : <p class="cs-prose" data-fx="print">{b.text}</p>)}
+      </div>
+    </section>
+
+    <PrevNext prev={prev.data} next={next.data} total={total} />
+  </main>
+  <script>
+    import '../../scripts/case/pipeline-anim';
+    import '../../scripts/case/covers';
+  </script>
+</Base>

@@ -1,0 +1,24 @@
+---
+import type { Project } from '../../lib/project-schema';
+interface Props { project: Project }
+const { project: p } = Astro.props;
+const nda = /^NDA/i.test(p.visibility);
+---
+<header class="cs-head cs-w" transition:name={'card-' + p.slug}>
+  <a class="cs-back" href="/#projects">&larr; all projects</a>
+  <p class="cs-crumb" data-fx="type"><b>kevin@portfolio</b>:~$ cat projects/{p.slug}.md</p>
+  <p class="cs-cat" data-fx="print"># {p.category}</p>
+  <h1 data-fx="print" data-fx-delay="0.1">{p.title}</h1>
+  <p class="cs-sum" data-fx="print" data-fx-delay="0.15">{p.summary}</p>
+  <dl class="cs-meta" data-fx="print" data-fx-delay="0.2">
+    <div><dt>Timeframe</dt><dd>{p.year}</dd></div>
+    <div class:list={['cs-status', { nda }]}><dt>Status</dt><dd>{p.visibility}</dd></div>
+    <div class="cs-stk"><dt>Stack</dt><dd><span class="cs-tags">{p.stack.map((s) => <span>{s}</span>)}</span></dd></div>
+    {p.contribution && <div class="cs-wide"><dt>Contribution</dt><dd>{p.contribution}</dd></div>}
+  </dl>
+  {p.links.length > 0 && (
+    <p class="cs-links" data-fx="print" data-fx-delay="0.25">
+      {p.links.map((l) => <a href={l.url} target="_blank" rel="noopener noreferrer">{l.label}</a>)}
+    </p>
+  )}
+</header>

@@ -1,11 +1,11 @@
 import { test, expect } from '@playwright/test';
 
-const PROJECTS = [1, 2, 3, 4, 5, 6, 7].map((n) => `/projects/placeholder-${n}/`);// real slugs land in Task 7
+const SLUGS = ['hybrid-rag', 'executive-data-assistant', 'material-property-prediction', 'taskflow-devsecops', '19mj-career-platform', 'realtime-lakehouse', 'onchain-todo-dapp'];
+const PROJECTS = SLUGS.map((s) => `/projects/${s}/`);
 const BANNED = [/;/, /pass rate/i, /Surabaya/, /TODO/, /Lorem/];
 
 for (const url of ['/', ...PROJECTS]) {
-  const t = url === '/' ? test : test.fixme;
-  t(`copy lint ${url}`, async ({ page }) => {
+  test(`copy lint ${url}`, async ({ page }) => {
     await page.goto(url);
     const text = await page.evaluate(() => document.body.innerText);
     expect(text.length).toBeGreaterThan(0);

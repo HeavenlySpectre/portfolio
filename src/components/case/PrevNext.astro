@@ -1,0 +1,24 @@
+---
+import type { Project } from '../../lib/project-schema';
+interface Props { prev: Project; next: Project; total: number }
+const { prev, next, total } = Astro.props;
+const fact = (p: Project) => (p.metrics[0] ? `${p.metrics[0].value} ${p.metrics[0].label}` : '');
+const cards = [
+  { rel: 'prev', dir: '← prev project', p: prev },
+  { rel: 'next', dir: 'next project →', p: next },
+];
+---
+<section class="cs-sec" aria-labelledby="cs-more">
+  <div class="cs-w">
+    <h2 id="cs-more" data-fx="print">More projects</h2>
+    <nav class="cs-pn" aria-label="Project navigation">
+      {cards.map(({ rel, dir, p }) => (
+        <a rel={rel} href={`/projects/${p.slug}/`} data-cover={p.slug} data-fact={fact(p)} data-index={p.order - 1} data-total={total}>
+          <canvas width="1024" height="640" aria-hidden="true"></canvas>
+          <span class="cs-pn-dir">{dir}</span>
+          <span class="cs-pn-ti">{p.title}</span>
+        </a>
+      ))}
+    </nav>
+  </div>
+</section>

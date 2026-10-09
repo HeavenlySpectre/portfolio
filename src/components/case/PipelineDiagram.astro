@@ -1,0 +1,55 @@
+---
+import { layoutPipeline } from '../../lib/pipeline-layout';
+import type { Pipeline } from '../../lib/pipeline';
+interface Props { pipeline: Pipeline; title: string }
+const { pipeline, title } = Astro.props;
+const layouts = (['h', 'v'] as const).map((m) => layoutPipeline(pipeline, m));
+const LINE = 14;
+const r1 = (n: number) => +n.toFixed(1);
+---
+<script is:inline>
+  /* Reserve the scrub height before paint so nothing below moves. Without JavaScript or with reduced motion this never runs. */
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('cs-scrub');
+</script>
+<div class="cs-pipe" data-pipe>
+  <div class="cs-track">
+    <div class="cs-sticky">
+      <div class="pipe-box">
+        {layouts.map((L) => (
+          <svg class="pipe" data-mode={L.mode} viewBox={`0 0 ${r1(L.width)} ${r1(L.height)}`} width={r1(L.width)} height={r1(L.height)} role="group" aria-label={`Pipeline diagram for ${title}`}>
+            <defs>
+              <marker id={`ah-${L.mode}`} viewBox="0 0 8 8" refX="8" refY="4" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto">
+                <path d="M0,0.5 L8,4 L0,7.5 Z" class="ah" />
+              </marker>
+            </defs>
+            {L.edges.map((e) => (
+              <g class:list={['pedge', { back: e.back }]} data-from={e.from} data-to={e.to} data-t0={e.t0.toFixed(4)} data-t1={e.t1.toFixed(4)}>
+                <path class="edge" d={e.d} marker-end={`url(#ah-${L.mode})`} />
+                <path class="lit" d={e.d} />
+              </g>
+            ))}
+            {L.nodes.map((n) => {
+              const y0 = (n.h - n.lines.length * LINE) / 2 + 11;
+              return (
+                <g class="pnode on" data-id={n.id} data-arrive={n.arrive.toFixed(4)} tabindex="0" role="button" aria-label={n.note ? `${n.label}: ${n.note}` : n.label} transform={`translate(${r1(n.x - n.w / 2)},${r1(n.y - n.h / 2)})`}>
+                  <rect class="halo" x="-3" y="-3" width={n.w + 6} height={n.h + 6} rx="3" />
+                  <rect class="box" width={n.w} height={n.h} rx="2" />
+                  <text class="l" text-anchor="middle">
+                    {n.lines.map((ln, i) => <tspan x={n.w / 2} y={y0 + i * LINE}>{ln}</tspan>)}
+                  </text>
+                </g>
+              );
+            })}
+          </svg>
+        ))}
+      </div>
+      <div class="pipe-hud" hidden>
+        <div class="pipe-trace"><b class="pipe-pct">[..........]  0%</b><span class="pipe-trace-txt">scroll to run the pipeline</span></div>
+        <p class="pipe-tip" aria-live="polite"><b>&rsaquo;</b> hover or tap a node for a one-line explanation</p>
+      </div>
+    </div>
+  </div>
+  <ol class="cs-steps">
+    {pipeline.nodes.map((n) => <li><b>{n.label}</b>{n.note && <span> {n.note}</span>}</li>)}
+  </ol>
+</div>
