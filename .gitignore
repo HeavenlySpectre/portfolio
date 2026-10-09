@@ -16,3 +16,8 @@ public/media/documents/*.pdf
 
 # SDD scratch
 .superpowers/
+
+# Astro / Playwright
+.astro/
+test-results/
+playwright-report/

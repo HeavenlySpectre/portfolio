@@ -1,0 +1,15 @@
+---
+import Base from '../layouts/Base.astro';
+const ids = ['top', 'drives', 'projects', 'experience', 'achievements', 'organizations', 'toolkit', 'education', 'contact'];
+---
+<Base
+  title="Kevin Anugerah Faza"
+  description="I build AI and data systems that work beyond the notebook."
+  canonical="https://kevinanugerah.dev/"
+  ogImage="https://kevinanugerah.dev/og-image.png"
+  jsonLd={[]}
+>
+  <main>
+    {ids.map((id) => <section id={id}><h2>{id}</h2></section>)}
+  </main>
+</Base>

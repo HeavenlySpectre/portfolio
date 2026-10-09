@@ -1,0 +1,18 @@
+:root {
+  --bg: #090c0a;
+  --surface: #0d110e;
+  --text: #d4ecdc;
+  --muted: #7fa28d;
+  --accent: #4ade80;
+  --accent-dim: #2c7f4a;
+  --accent-glow: rgba(74, 222, 128, 0.3);
+  --line: #25362c;
+  --faint: #16211b;
+  --gold: #e0b84e;
+  --bronze: #c98a52;
+  --bg-rgb: 9 12 10;
+  --glow-blur: 16px;
+  --mono: "IBM Plex Mono", ui-monospace, monospace;
+  --padx: clamp(1rem, 4vw, 3.5rem);
+  --pf: clamp(0.85rem, 1.3vw, 1.05rem);
+}
