@@ -1,0 +1,45 @@
+---
+/* The loader exists only when JS runs: this inline script (placed first in <body>) decides before first paint
+   and injects the markup. No JS means no `ld` class and no loader element, so every section is plainly visible. */
+---
+<script is:inline>
+  (function () {
+    var D = document.documentElement, seen = false;
+    D.classList.add('js');
+    try { seen = !!sessionStorage.getItem('kv-loader-seen'); } catch (e) {}
+    var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (seen || reduced) return;
+    D.classList.add('ld', 'ld-lock');
+    document.currentScript.insertAdjacentHTML('afterend',
+      '<div id="loader" aria-hidden="true"><div class="ld-curtain"><div class="ld-bg"></div><div class="ld-scan"></div></div>' +
+      '<pre id="ld-log"></pre><p id="ld-line"></p><div class="ld-hint">any key / tap to skip</div></div>');
+    /* last resort if the module never loads: never trap the page */
+    setTimeout(function () {
+      var l = document.getElementById('loader');
+      if (l) { l.remove(); D.classList.remove('ld', 'ld-lock'); }
+    }, 9500);
+  })();
+</script>
+
+<style is:global>
+  html.ld-lock { overflow: hidden; }
+  html.ld .nav { opacity: 0; transition: none; pointer-events: none; }
+  #loader { position: fixed; inset: 0; z-index: 1000; color: var(--text); font: 400 var(--pf)/1.6 var(--mono); cursor: pointer; touch-action: manipulation; }
+  .ld-bg { position: absolute; inset: 0; background: var(--bg); }
+  .ld-bg::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, rgba(0,0,0,.25) 0 1px, transparent 1px 3px); }
+  #ld-log { position: absolute; margin: 0; left: var(--padx); top: 2rem; font: inherit; white-space: pre; max-width: calc(100vw - var(--padx)); overflow: hidden; }
+  #ld-log .ln { display: block; height: 1.6em; }
+  #ld-log .ok, #ld-line b { color: var(--accent); font-weight: 500; }
+  #ld-log .dm { color: var(--muted); }
+  .cur { display: inline-block; width: .6em; height: 1.05em; background: var(--accent); vertical-align: text-bottom; animation: blink 1s steps(1) infinite; }
+  #ld-line { position: absolute; margin: 0; left: 0; top: 0; white-space: pre; color: var(--muted); display: none; font: inherit; will-change: transform; }
+  .ld-curtain { position: absolute; inset: 0; will-change: transform; }
+  .ld-scan { position: absolute; left: 0; right: 0; top: 0; height: 2px; background: var(--accent); opacity: 0; }
+  .ld-scan::before { content: ""; position: absolute; left: 0; right: 0; bottom: 2px; height: 28px; background: linear-gradient(0deg, color-mix(in srgb, var(--accent) 40%, transparent), transparent); }
+  .ld-hint { position: absolute; bottom: 1rem; right: var(--padx); font-size: .72rem; color: var(--muted); }
+  @keyframes blink { 50% { opacity: 0; } }
+</style>
+
+<script>
+  import '../scripts/loader';
+</script>

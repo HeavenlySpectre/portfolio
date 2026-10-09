@@ -1,6 +1,8 @@
 ---
 import Base from '../layouts/Base.astro';
-const ids = ['top', 'drives', 'projects', 'experience', 'achievements', 'organizations', 'toolkit', 'education', 'contact'];
+import Loader from '../components/Loader.astro';
+import Hero from '../components/Hero.astro';
+const ids = ['drives', 'projects', 'experience', 'achievements', 'organizations', 'toolkit', 'education', 'contact'];
 ---
 <Base
   title="Kevin Anugerah Faza"
@@ -9,7 +11,9 @@ const ids = ['top', 'drives', 'projects', 'experience', 'achievements', 'organiz
   ogImage="https://kevinanugerah.dev/og-image.png"
   jsonLd={[]}
 >
+  <Loader />
   <main>
+    <Hero />
     {ids.map((id) => <section id={id}><h2>{id}</h2></section>)}
   </main>
 </Base>
