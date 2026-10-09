@@ -74,15 +74,14 @@ function mountPipe(root: HTMLElement): void {
   if (RED) return;
 
   /* ---- scroll-scrubbed run ---- */
-  document.documentElement.classList.add('cs-scrub');
-  const modeMq = matchMedia('(max-width: 760px)');
   const stickyMq = matchMedia('(min-width: 900px) and (min-height: 760px)');
   let rt: Rt | null = null;
   let P = 0;
   let lastPct = -1;
   let lastTxt = '';
 
-  const activeSvg = () => svgs.find((s) => s.dataset.mode === (modeMq.matches ? 'v' : 'h'))!;
+  // the layout shown is chosen by CSS (a container query), so ask the page which one it is
+  const activeSvg = () => svgs.find((s) => s.getClientRects().length > 0) ?? svgs[0];
 
   function build(): void {
     if (rt) rt.edges.forEach((e) => e.pk.remove());
@@ -138,12 +137,15 @@ function mountPipe(root: HTMLElement): void {
   }
 
   let st: ScrollTrigger | null = null;
+  const offset = () => parseFloat(getComputedStyle(sticky).top) || 58;
   function mountScrub(): void {
     st?.kill();
     const o = { p: P };
-    const pinned = stickyMq.matches;
+    // pinned only when the whole readout fits the screen, a tall diagram scrolls instead
+    const fits = () => sticky.offsetHeight + Math.max(58, innerHeight / 2 - 176) + 24 <= innerHeight; // same top as case.css
+    const pinned = stickyMq.matches && fits();
+    root.classList.toggle('pin', pinned);
     // the pinned box sits at its own sticky offset, so the run starts when the track reaches it
-    const offset = () => parseFloat(getComputedStyle(sticky).top) || 58;
     const startAt = () => `top ${offset()}px`;
     const endAt = () => `bottom ${offset() + sticky.offsetHeight}px`;
     const tw = gsap.to(o, {
@@ -155,7 +157,17 @@ function mountPipe(root: HTMLElement): void {
 
   build();
   mountScrub();
-  modeMq.addEventListener('change', () => { build(); st?.refresh(); });
+  // a resize can swap the layout or change whether it fits the screen
+  let lastMode = activeSvg().dataset.mode;
+  let lastVh = innerHeight;
+  new ResizeObserver(() => {
+    const mode = activeSvg().dataset.mode;
+    if (mode === lastMode && innerHeight === lastVh) return;
+    lastMode = mode; lastVh = innerHeight;
+    if (rt?.svg !== activeSvg()) build();
+    mountScrub();
+    ScrollTrigger.refresh();
+  }).observe(root);
   stickyMq.addEventListener('change', () => { mountScrub(); ScrollTrigger.refresh(); });
 }
 

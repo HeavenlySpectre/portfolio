@@ -11,9 +11,12 @@ export interface LaidNode { id: string; label: string; note: string; lines: stri
 export interface LaidEdge { from: string; to: string; back: boolean; d: string; t0: number; t1: number }
 export interface Layout { mode: Mode; width: number; height: number; ranks: number; nodes: LaidNode[]; edges: LaidEdge[] }
 
-const NODE_W = 124;
-const LINE_H = 14;
-const WRAP = 17;
+/* 1 SVG unit is 1 CSS px: the diagram is never scaled down, so a 12px label is 12px on screen.
+   PipelineDiagram picks the layout that fits the box (single row when wide, top to bottom otherwise). */
+export const FONT = 12;
+const NODE_W = 108;
+export const LINE_H = 15;
+const WRAP = 14;
 
 export function wrapLabel(label: string, max = WRAP): string[] {
   const lines: string[] = [];
@@ -63,15 +66,15 @@ export function layoutPipeline(p: Pipeline, mode: Mode): Layout {
   const R = Math.max(0, ...Object.values(rank));
   const lines = new Map(p.nodes.map((n) => [n.id, wrapLabel(n.label)]));
   const maxLines = Math.max(1, ...[...lines.values()].map((l) => l.length));
-  const NODE_H = 16 + LINE_H * maxLines;
+  const NODE_H = 14 + LINE_H * maxLines;
   const H = mode === 'h';
   const MAIN = H ? NODE_W : NODE_H;           // node size along the rank axis
   const CROSS = H ? NODE_H : NODE_W;          // node size across it
-  const GAP = H ? 44 : 46;                    // space between ranks (room for the edge channels)
-  const CGAP = H ? 22 : 20;                   // space between slots in one rank
-  const DUMMY = 10;
-  const PAD = 12;
-  const STEP = H ? 5.5 : 7;
+  const GAP = H ? 28 : 36;                    // space between ranks (room for the edge channels)
+  const CGAP = H ? 20 : 10;                   // space between slots in one rank
+  const DUMMY = H ? 10 : 8;
+  const PAD = H ? 6 : 4;
+  const STEP = H ? 4 : 5;
 
   // items: real nodes plus one placeholder per rank crossed by a long forward edge
   const items: Item[] = p.nodes.map((n, i) => ({ key: n.id, rank: rank[n.id], id: n.id, idx: i, size: CROSS, pos: 0, c: 0 }));
@@ -141,7 +144,7 @@ export function layoutPipeline(p: Pipeline, mode: Mode): Layout {
   const backs = chains.filter((c) => c.back).sort((a, b) => Math.abs(rank[a.edge.from] - rank[a.edge.to]) - Math.abs(rank[b.edge.from] - rank[b.edge.to]));
   const lane = new Map<number, number>();
   backs.forEach((b, k) => lane.set(b.i, k));
-  const LANE0 = 18, LANE_STEP = 10;
+  const LANE0 = H ? 16 : 12, LANE_STEP = H ? 9 : 7;
   const crossMin = lo - PAD;
   const crossMax = hi + (backs.length ? LANE0 + LANE_STEP * (backs.length - 1) + PAD : PAD);
   const shiftC = -crossMin;

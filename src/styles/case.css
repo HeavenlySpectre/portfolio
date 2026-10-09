@@ -42,20 +42,20 @@ section.cs-sec { padding: 0; margin-top: clamp(3rem, 8vw, 6rem); }
 .cs-list { max-width: 62ch; }
 
 /* ---------- pipeline diagram ---------- */
-.cs-pipe { margin-top: 1.6rem; }
+/* 1 SVG unit is 1 CSS px, so a 12px label is 12px on screen. The single-row layout is shown by a container query
+   emitted with the diagram (only when it fits), otherwise the top to bottom layout. No scaling, no sideways scroll. */
+.cs-pipe { margin-top: 1.6rem; container: pipe / inline-size; }
 .cs-track { position: relative; }
 .cs-sticky { position: relative; }
 @media (min-width: 900px) and (min-height: 760px) {
-  html.cs-scrub .cs-track { height: 240vh; }
-  html.cs-scrub .cs-sticky { position: sticky; top: max(3.6rem, calc(50vh - 11rem)); }
+  .cs-pipe.pin .cs-track { height: 240vh; }
+  .cs-pipe.pin .cs-sticky { position: sticky; top: max(3.6rem, calc(50vh - 11rem)); }
 }
-.pipe-box { border: 1px solid var(--line); background: var(--surface); padding: .6rem; overflow-x: auto; }
-svg.pipe { display: block; width: 100%; height: auto; font-family: var(--mono); overflow: visible; }
-svg.pipe[data-mode=h] { min-width: 56rem; }
-svg.pipe[data-mode=v] { display: none; max-width: 30rem; margin: 0 auto; }
-@media (max-width: 760px) {
-  svg.pipe[data-mode=h] { display: none; }
-  svg.pipe[data-mode=v] { display: block; }
+.pipe-box { border: 1px solid var(--line); background: var(--surface); padding: .4rem; }
+svg.pipe { display: block; margin: 0 auto; max-width: 100%; height: auto; font-family: var(--mono); overflow: visible; }
+svg.pipe[data-mode=h] { display: none; }
+@media (max-width: 480px) {
+  .pipe-box { margin-inline: calc(-1 * var(--padx)); border-inline-width: 0; }
 }
 .pipe .edge { fill: none; stroke: var(--line); stroke-width: 1.5; }
 .pipe .back .edge { stroke-dasharray: 4 4; }
@@ -65,7 +65,7 @@ svg.pipe[data-mode=v] { display: none; max-width: 30rem; margin: 0 auto; }
 .pipe .pnode { cursor: pointer; outline: none; }
 .pipe .pnode rect.box { fill: var(--bg); stroke: var(--line); stroke-width: 1.2; transition: stroke .25s; }
 .pipe .pnode rect.halo { fill: none; stroke: var(--accent); stroke-width: 5; opacity: 0; transition: opacity .25s; }
-.pipe .pnode .l { fill: var(--muted); font-size: 11px; font-weight: 600; transition: fill .25s; }
+.pipe .pnode .l { fill: var(--muted); font-size: 12px; font-weight: 600; transition: fill .25s; }
 .pipe .pnode.on rect.box { stroke: var(--accent-dim); }
 .pipe .pnode.on .l { fill: var(--text); }
 .pipe .pnode.hot rect.box { stroke: var(--accent); }
@@ -82,10 +82,9 @@ svg.pipe[data-mode=v] { display: none; max-width: 30rem; margin: 0 auto; }
 .pipe-trace b { color: var(--accent); font-weight: 500; white-space: pre; flex: none; }
 .pipe-tip { margin-top: .4rem; padding: .55rem .8rem; border: 1px dashed var(--line); background: var(--bg); min-height: 3.3rem; color: var(--text); }
 .pipe-tip b { color: var(--accent); font-weight: 500; }
-@media (max-width: 899px) {
-  .pipe-hud { position: sticky; bottom: .5rem; z-index: 5; background: var(--bg); box-shadow: 0 0 0 .5rem var(--bg); }
-  .pipe-trace { flex-direction: column; gap: .1rem; }
-}
+/* not pinned (small or tall diagram): the readout sticks to the bottom of the screen while the diagram scrolls */
+.cs-pipe:not(.pin) .pipe-hud { position: sticky; bottom: .5rem; z-index: 5; background: var(--bg); box-shadow: 0 0 0 .5rem var(--bg); }
+@media (max-width: 899px) { .pipe-trace { flex-direction: column; gap: .1rem; } }
 
 .cs-steps { counter-reset: st; margin-top: 1.6rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); gap: .8rem 2rem; font-size: .8rem; line-height: 1.55; color: var(--muted); }
 .cs-steps li { counter-increment: st; min-width: 0; }

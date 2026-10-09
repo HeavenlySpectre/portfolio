@@ -153,7 +153,7 @@ test('JavaScript disabled: every section is readable', async ({ browser }) => {
 });
 
 for (const w of [320, 375, 768, 2560]) {
-  test(`width ${w}: no horizontal overflow, ${w <= 760 ? 'vertical' : 'horizontal'} diagram`, async ({ page }) => {
+  test(`width ${w}: no horizontal overflow and exactly one diagram layout shown`, async ({ page }) => {
     test.setTimeout(60_000);
     await page.setViewportSize({ width: w, height: 800 });
     for (const slug of SLUGS) {
@@ -161,8 +161,35 @@ for (const w of [320, 375, 768, 2560]) {
       await page.waitForTimeout(150);
       const sw = await page.evaluate(() => ({ sw: document.documentElement.scrollWidth, iw: innerWidth }));
       expect(sw.sw, slug).toBeLessThanOrEqual(sw.iw);
-      await expect(page.locator(`svg.pipe[data-mode=${w <= 760 ? 'v' : 'h'}]`)).toBeVisible();
-      await expect(page.locator(`svg.pipe[data-mode=${w <= 760 ? 'h' : 'v'}]`)).toBeHidden();
+      await expect(page.locator('svg.pipe:visible')).toHaveCount(1);
+    }
+  });
+}
+
+// 1 SVG unit is 1 CSS px: labels must be at least 12px on screen at every width, and the diagram never scrolls sideways
+for (const w of [320, 375, 900, 1280, 1920, 2560]) {
+  test(`width ${w}: diagram labels render at 12px or more and the box never scrolls sideways`, async ({ page }) => {
+    test.setTimeout(60_000);
+    await page.setViewportSize({ width: w, height: 800 });
+    for (const slug of SLUGS) {
+      await page.goto(url(slug));
+      await page.waitForTimeout(100);
+      const m = await page.evaluate(() => {
+        const svg = [...document.querySelectorAll<SVGSVGElement>('svg.pipe')].find((s) => s.getClientRects().length > 0)!;
+        const box = document.querySelector<HTMLElement>('.pipe-box')!;
+        const sizes = [...svg.querySelectorAll<SVGTextElement>('.pnode text')].map((t) => {
+          const ctm = t.getScreenCTM()!;
+          return ctm.a * parseFloat(getComputedStyle(t).fontSize);
+        });
+        const heights = [...svg.querySelectorAll<SVGTSpanElement>('.pnode tspan')].map((t) => t.getBoundingClientRect().height);
+        const sr = svg.getBoundingClientRect(), br = box.getBoundingClientRect();
+        return { min: Math.min(...sizes), nodes: sizes.length, minH: Math.min(...heights), scroll: box.scrollWidth - box.clientWidth, over: Math.max(0, sr.right - br.right, br.left - sr.left), mode: svg.dataset.mode };
+      });
+      expect(m.nodes, slug).toBeGreaterThan(0);
+      expect(m.min, `${slug} label font px at ${w} (${m.mode})`).toBeGreaterThanOrEqual(11.99);
+      expect(m.minH, `${slug} rendered label height at ${w}`).toBeGreaterThanOrEqual(11.99);
+      expect(m.scroll, `${slug} box scrollWidth at ${w}`).toBeLessThanOrEqual(0);
+      expect(m.over, `${slug} svg outside box at ${w}`).toBeLessThanOrEqual(0.5);
     }
   });
 }
