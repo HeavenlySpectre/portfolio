@@ -1,4 +1,4 @@
-# Leadership and organizations
+# Organizations
 
 ## Google Developer Groups on Campus ITS
 
@@ -44,5 +44,4 @@ Public summary:
 
 - Coordinated AI Club learning sessions and peer mentoring in machine learning, deep learning, and generative AI.
 - Served as Person in Charge for LKMM-TD HMIT ITS in collaboration with BEM ITS.
-- Achieved a 100% participant pass rate.
 - Received the Staff of the Year award for contribution and consistency.
