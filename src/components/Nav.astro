@@ -14,7 +14,7 @@ const items = [
 <header class="nav" id="nav" data-active={home ? undefined : 'projects'}>
   <a class="brand" href={home ? '#top' : '/'} data-sec="top">kevin@portfolio</a>
   <ul>
-    {items.map((i) => <li><a href={i.href} data-sec={i.sec}>{i.label}</a></li>)}
+    {items.map((i) => <li><a href={i.href} data-sec={i.sec} data-astro-reload={i.sec === 'cv' ? '' : undefined} data-astro-prefetch={i.sec === 'cv' ? 'false' : undefined}>{i.label}</a></li>)}
   </ul>
   <i class="nav-p" id="navp" aria-hidden="true"></i>
   <button class="mbtn" id="menu-open" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="menu">menu</button>
@@ -24,7 +24,7 @@ const items = [
   <div class="menu-top"><a class="brand" href={home ? '#top' : '/'}>kevin@portfolio</a><button id="menu-close" type="button">close</button></div>
   <p class="menu-ps"><b>kevin@portfolio</b>:~$ ls</p>
   <ul class="menu-list">
-    {items.map((i) => <li><a href={i.href}><i>&gt;</i>{i.label}</a></li>)}
+    {items.map((i) => <li><a href={i.href} data-astro-reload={i.sec === 'cv' ? '' : undefined} data-astro-prefetch={i.sec === 'cv' ? 'false' : undefined}><i>&gt;</i>{i.label}</a></li>)}
   </ul>
   <p class="menu-hint">esc to close</p>
 </div>

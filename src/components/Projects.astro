@@ -36,7 +36,7 @@ const cards = [
   <ul class="sp-grid" aria-label="Projects">
     {cards.map((c, i) => (
       <li>
-        <a class="sp-card" href={c.href} data-slug={c.slug}>
+        <a class="sp-card" href={c.href} data-slug={c.slug} transition:name={'card-' + c.slug}>
           <span class="sp-card-meta"><span class="sp-num">{pad2(i + 1)}</span><span class="sp-cat">{c.cat}</span></span>
           <h3 class="sp-title">{c.title}</h3>
           <p class="sp-fact">{c.fact}</p>
@@ -78,6 +78,11 @@ const cards = [
   .spiral[data-view=spiral] .sp-grid,
   html.sp-on .spiral:not([data-view]) .sp-h,
   .spiral[data-view=spiral] .sp-h { position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+  /* the grid cards carry the shared-element name of the card-expand transition. While the spiral is up they are hidden, and the active
+     info panel takes the name when it is clicked (transitions.ts), so no name is ever on the page twice */
+  html.sp-on .spiral:not([data-view]) .sp-card,
+  .spiral[data-view=spiral] .sp-card { view-transition-name: none !important; }
 
   /* spiral */
   .spiral[data-view=spiral] { height: 100vh; height: 100svh; min-height: 560px; padding: 0; overflow: hidden; }
@@ -146,29 +151,5 @@ const cards = [
 </style>
 
 <script>
-  import { prefersReducedMotion } from '../scripts/motion/fx';
-
-  /* Lazy init: three.js, the covers and the pin load when #projects is within one viewport, and never while the loader owns the frame
-     budget (loader-done, then a calm second, then idle). Module evaluation and scene creation land in separate tasks.
-     If the module or WebGL fails, the server-rendered grid stays (the sp-on reservation is lifted). */
-  const section = document.getElementById('projects');
-  if (section && !prefersReducedMotion()) {
-    const D = document.documentElement;
-    const idle = () => new Promise<void>((r) => ('requestIdleCallback' in window ? requestIdleCallback(() => r(), { timeout: 1500 }) : setTimeout(r, 200)));
-    const calm = D.classList.contains('ld')
-      ? new Promise<void>((r) => addEventListener('loader-done', () => setTimeout(r, 1000), { once: true }))
-      : Promise.resolve();
-    let started = false;
-    const io = new IntersectionObserver((es) => {
-      if (started || !es.some((e) => e.isIntersecting)) return;
-      started = true;
-      io.disconnect();
-      calm
-        .then(idle)
-        .then(() => import('../scripts/spiral/spiral'))
-        .then(async (m) => { await idle(); m.mountSpiral(section); })
-        .catch((err) => { console.warn('spiral unavailable, showing the grid', err); D.classList.remove('sp-on'); });
-    }, { rootMargin: '100% 0px' });
-    io.observe(section);
-  }
+  import '../scripts/spiral/boot';
 </script>

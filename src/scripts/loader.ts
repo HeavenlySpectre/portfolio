@@ -1,4 +1,5 @@
 import { gsap } from 'gsap';
+import { onPage } from './lifecycle';
 
 /* Training-log loader. Once per session (sessionStorage['kv-loader-seen']), skippable with any key or tap,
    8 s safety timeout. The exit is ONE gsap timeline: the log collapses, "> ready." travels to the hero prompt
@@ -8,11 +9,14 @@ import { gsap } from 'gsap';
 declare global { interface Window { __heroReady?: boolean } }
 
 const D = document.documentElement;
-const L = document.getElementById('loader');
 
-if (L && D.classList.contains('ld')) run(L);
+/* the loader belongs to the first document of a session: it is only ever on the page when that document is `/` */
+onPage(() => {
+  const L = document.getElementById('loader');
+  if (L && D.classList.contains('ld')) return run(L);
+});
 
-function run(L: HTMLElement) {
+function run(L: HTMLElement): () => void {
   const log = document.getElementById('ld-log')!;
   const line = document.getElementById('ld-line')!;
   const curtain = L.querySelector<HTMLElement>('.ld-curtain')!;
@@ -35,7 +39,9 @@ function run(L: HTMLElement) {
       .then(() => { fontsOK = true; }, () => { fontsOK = true; });
   }
 
-  let finished = false, settled = false, tl: gsap.core.Timeline | null = null;
+  let finished = false, settled = false, dead = false, tl: gsap.core.Timeline | null = null;
+  const timers = new Set<ReturnType<typeof setTimeout>>();
+  const later = (f: () => void, ms: number) => { const t = setTimeout(() => { timers.delete(t); f(); }, ms); timers.add(t); };
   function finish() {
     if (finished) return;
     finished = true;
@@ -52,11 +58,11 @@ function run(L: HTMLElement) {
   }
   const until = (test: () => boolean, max: number) => new Promise<void>((res) => {
     const t0 = performance.now();
-    (function p() { if (test() || performance.now() - t0 > max) res(); else setTimeout(p, 30); })();
+    (function p() { if (dead || test() || performance.now() - t0 > max) res(); else later(p, 30); })();
   });
 
   /* ---- log script (generic training log, never real scores) ---- */
-  let P = 0, T0 = performance.now(), prev = T0, forced = false, skipped = false, exiting = false;
+  let P = 0, T0 = performance.now(), prev = T0, forced = false, skipped = false, exiting = false, raf = 0;
   const NARROW = innerWidth < 640;
   const bar = (p: number) => { const n = Math.round(p * 16); return '█'.repeat(n) + '░'.repeat(16 - n); };
   const EP: Record<number, [number, number]> = { 3: [0.2693, 0.2841], 6: [0.0921, 0.1014], 9: [0.0526, 0.0589], 12: [0.0412, 0.0467] };
@@ -87,7 +93,7 @@ function run(L: HTMLElement) {
   const fmt = (s: string) => s.replace('[ ok ]', '<span class="ok">[ ok ]</span>').replace('✓', '<span class="ok">✓</span>');
 
   function frame(now: number) {
-    if (exiting) return;
+    if (exiting || dead) return;
     const dt = Math.min((now - prev) / 1000, 0.1); prev = now;
     const t = (now - T0) / 1000;
     if (!forced && t > FORCE_AT) forced = true;
@@ -108,16 +114,16 @@ function run(L: HTMLElement) {
       const h = fmt(txt.slice(0, Math.floor(r.shown))) + (cur ? '<span class="cur"></span>' : '');
       if (h !== r.html) { r.html = h; r.el.innerHTML = h; }
     });
-    if (rows.length === LINES.length && rows[rows.length - 1].typed) { exiting = true; setTimeout(exit, skipped ? 0 : 220); return; }
-    requestAnimationFrame(frame);
+    if (rows.length === LINES.length && rows[rows.length - 1].typed) { exiting = true; later(exit, skipped ? 0 : 220); return; }
+    raf = requestAnimationFrame(frame);
   }
 
   /* ---- exit: ONE gsap timeline ---- */
   async function exit() {
-    if (settled) return;
+    if (settled || dead) return;
     await until(() => !!window.__heroReady, skipped ? 600 : 3000); // the hero background must already be warm under the overlay
     if (document.fonts) await document.fonts.ready;
-    if (settled) return;
+    if (settled || dead) return;
     const lns = [...log.querySelectorAll<HTMLElement>('.ln')], lastLn = lns[lns.length - 1], old = lns.slice(0, -1);
     lastLn.innerHTML = fmt('&gt; ready.');
     const pr = prompt.getBoundingClientRect(), lr = lastLn.getBoundingClientRect(), dy = lr.top - pr.top, dx = lr.left - pr.left;
@@ -172,7 +178,7 @@ function run(L: HTMLElement) {
   const skip = () => { if (skipped) return; skipped = true; if (tl) tl.timeScale(2.5); };
   addEventListener('keydown', skip);
   addEventListener('pointerdown', skip); // the overlay is inert, so listen on the window
-  setTimeout(() => { // never trap the page
+  later(() => { // never trap the page
     if (!settled) {
       tl?.progress(1, false); // events are suppressed on purpose, so restore the end state by hand
       heroWords.forEach((w, i) => { w.textContent = heroFinal[i]; });
@@ -181,5 +187,17 @@ function run(L: HTMLElement) {
       settle();
     }
   }, SAFETY);
-  requestAnimationFrame((n) => { prev = n; T0 = n; frame(n); });
+  raf = requestAnimationFrame((n) => { prev = n; T0 = n; frame(n); });
+
+  /* leaving the page (or any early teardown) must not leave a timer, a frame, a tween or a listener behind, and must not leave the page locked */
+  return () => {
+    dead = true;
+    cancelAnimationFrame(raf);
+    timers.forEach(clearTimeout); timers.clear();
+    tl?.kill();
+    removeEventListener('keydown', skip);
+    removeEventListener('pointerdown', skip);
+    L.remove();
+    D.classList.remove('ld', 'ld-lock');
+  };
 }

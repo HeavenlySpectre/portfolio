@@ -4,6 +4,7 @@
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { prefersReducedMotion } from '../motion/fx';
+import { onPage } from '../lifecycle';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -27,7 +28,7 @@ function mkPacket(svg: SVGSVGElement): SVGGElement {
   return g;
 }
 
-function mountPipe(root: HTMLElement): void {
+function mountPipe(root: HTMLElement): () => void {
   const RED = prefersReducedMotion();
   const hud = root.querySelector<HTMLElement>('.pipe-hud')!;
   const tip = root.querySelector<HTMLElement>('.pipe-tip')!;
@@ -71,7 +72,7 @@ function mountPipe(root: HTMLElement): void {
   }
   hud.hidden = false;
   showTip(null);
-  if (RED) return;
+  if (RED) return () => { /* the node listeners die with the page */ };
 
   /* ---- scroll-scrubbed run ---- */
   const stickyMq = matchMedia('(min-width: 900px) and (min-height: 760px)');
@@ -137,9 +138,11 @@ function mountPipe(root: HTMLElement): void {
   }
 
   let st: ScrollTrigger | null = null;
+  let tw: gsap.core.Tween | null = null;
   const offset = () => parseFloat(getComputedStyle(sticky).top) || 58;
   function mountScrub(): void {
     st?.kill();
+    tw?.kill();
     const o = { p: P };
     // pinned only when the whole readout fits the screen, a tall diagram scrolls instead
     const fits = () => sticky.offsetHeight + Math.max(58, innerHeight / 2 - 176) + 24 <= innerHeight; // same top as case.css
@@ -148,7 +151,7 @@ function mountPipe(root: HTMLElement): void {
     // the pinned box sits at its own sticky offset, so the run starts when the track reaches it
     const startAt = () => `top ${offset()}px`;
     const endAt = () => `bottom ${offset() + sticky.offsetHeight}px`;
-    const tw = gsap.to(o, {
+    tw = gsap.to(o, {
       p: 1, ease: 'none', onUpdate: () => render(o.p),
       scrollTrigger: { trigger: track, start: pinned ? startAt : 'top 55%', end: pinned ? endAt : 'bottom 70%', scrub: 0.4, invalidateOnRefresh: true },
     });
@@ -160,16 +163,29 @@ function mountPipe(root: HTMLElement): void {
   // a resize can swap the layout or change whether it fits the screen
   let lastMode = activeSvg().dataset.mode;
   let lastVh = innerHeight;
-  new ResizeObserver(() => {
+  const ro = new ResizeObserver(() => {
     const mode = activeSvg().dataset.mode;
     if (mode === lastMode && innerHeight === lastVh) return;
     lastMode = mode; lastVh = innerHeight;
     if (rt?.svg !== activeSvg()) build();
     mountScrub();
     ScrollTrigger.refresh();
-  }).observe(root);
-  stickyMq.addEventListener('change', () => { mountScrub(); ScrollTrigger.refresh(); });
+  });
+  ro.observe(root);
+  const onSticky = () => { mountScrub(); ScrollTrigger.refresh(); };
+  stickyMq.addEventListener('change', onSticky);
+
+  return () => {
+    ro.disconnect();
+    stickyMq.removeEventListener('change', onSticky);
+    st?.kill(); st = null;
+    tw?.kill(); tw = null;
+    rt?.edges.forEach((e) => e.pk.remove());
+    rt = null;
+  };
 }
 
-const root = document.querySelector<HTMLElement>('[data-pipe]');
-if (root) mountPipe(root);
+onPage(() => {
+  const root = document.querySelector<HTMLElement>('[data-pipe]');
+  if (root) return mountPipe(root);
+});

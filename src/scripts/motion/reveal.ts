@@ -59,17 +59,21 @@ export function revealSection(section: HTMLElement): void {
 }
 
 /** Arms every section that has data-fx elements and plays each one once, when it scrolls into view. */
-export function initReveals(root: ParentNode = document): void {
-  if (prefersReducedMotion()) return;
+export function initReveals(root: ParentNode = document): { destroy(): void } {
+  const none = { destroy() { /* nothing armed */ } };
+  if (prefersReducedMotion()) return none;
   const secs = [...root.querySelectorAll<HTMLElement>('section')].filter((s) => s.querySelector('[data-fx]'));
-  if (!secs.length) return;
-  secs.forEach(armSection);
+  if (!secs.length) return none;
+  // every timeline the reveals create is recorded in one context, so leaving the page can stop them all
+  const ctx = gsap.context(() => {});
+  secs.forEach((s) => ctx.add(() => armSection(s)));
   const io = new IntersectionObserver((es) => {
     for (const e of es) {
       if (!e.isIntersecting) continue;
       io.unobserve(e.target);
-      revealSection(e.target as HTMLElement);
+      ctx.add(() => revealSection(e.target as HTMLElement));
     }
   }, { rootMargin: '0px 0px -10% 0px' });
   secs.forEach((s) => io.observe(s));
+  return { destroy() { io.disconnect(); ctx.kill(); } };
 }

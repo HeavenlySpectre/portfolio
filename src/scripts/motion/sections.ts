@@ -2,6 +2,8 @@ import { gsap } from 'gsap';
 import { countUp, prefersReducedMotion, scramble, txDone, typeText } from './fx';
 import type { GitGraph } from '../experience/gitgraph';
 
+declare global { interface Window { __kvSwapped?: boolean } }
+
 /* Per-section choreography of the home page (port of the home-full board's motion layer).
    One language: things print, compile, resolve and draw, like a terminal and a training run.
    - a section heading types its command with a caret, then the body starts (units wait for their heading)
@@ -37,15 +39,22 @@ interface Unit {
 export interface SectionMotion { destroy(): void }
 
 /** Arms the home sections and plays each once when it scrolls into view. Returns once everything is armed. */
-export async function mountSectionMotion(graph: GitGraph): Promise<SectionMotion> {
+export async function mountSectionMotion(graph: GitGraph, { signal }: { signal?: AbortSignal } = {}): Promise<SectionMotion> {
   const noop: SectionMotion = { destroy() { /* nothing armed */ } };
-  if (prefersReducedMotion()) return noop;
+  if (prefersReducedMotion() || signal?.aborted) return noop;
 
   // wait for the loader transition to finish (it dispatches loader-done), with a safety net so the page is never left hidden
   if (document.getElementById('loader')) {
-    await new Promise<void>((r) => { addEventListener('loader-done', () => r(), { once: true }); setTimeout(r, 12000); });
+    await new Promise<void>((r) => {
+      const t = setTimeout(r, 12000);
+      const done = () => { clearTimeout(t); removeEventListener('loader-done', done); signal?.removeEventListener('abort', done); r(); };
+      addEventListener('loader-done', done);
+      signal?.addEventListener('abort', done);
+    });
   }
-  await new Promise((r) => setTimeout(r, 120));
+  // after a client-side navigation there is no loader to settle behind, so arm in the very next task: the page is already on screen
+  await new Promise((r) => setTimeout(r, window.__kvSwapped ? 0 : 120));
+  if (signal?.aborted) return noop;
 
   const yieldMain = (): Promise<void> => new Promise((r) => {
     const s = (self as unknown as { scheduler?: { yield?: () => Promise<void> } }).scheduler;
@@ -280,6 +289,19 @@ export async function mountSectionMotion(graph: GitGraph): Promise<SectionMotion
     }
   }
 
+  const handle: SectionMotion = {
+    destroy() {
+      if (dead) return;
+      dead = true;
+      io1.disconnect(); io2.disconnect();
+      units.forEach(disarm);
+      progReset(true);
+      graph.destroy();
+      D.dataset.sectionMotion = 'off';
+    },
+  };
+  signal?.addEventListener('abort', () => handle.destroy(), { once: true });
+
   /* ======================= arm all ======================= */
   define();
   for (const u of units) byEl.set(u.el, u);
@@ -300,14 +322,5 @@ export async function mountSectionMotion(graph: GitGraph): Promise<SectionMotion
     else ioOf(u).observe(u.el);
   }
 
-  return {
-    destroy() {
-      dead = true;
-      io1.disconnect(); io2.disconnect();
-      units.forEach(disarm);
-      progReset(true);
-      graph.destroy();
-      D.dataset.sectionMotion = 'off';
-    },
-  };
+  return handle;
 }

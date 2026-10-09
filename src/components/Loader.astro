@@ -8,6 +8,8 @@
     D.classList.add('js');
     try { seen = !!sessionStorage.getItem('kv-loader-seen'); } catch (e) {}
     var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // this script also runs when the router swaps the home page in: the loader belongs to the first document of a session, never to in-site navigation
+    if (window.__kvSwapped) { try { sessionStorage.setItem('kv-loader-seen', '1'); } catch (e) {} return; }
     if (seen || reduced) return;
     D.classList.add('ld', 'ld-lock');
     document.currentScript.insertAdjacentHTML('afterend',

@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { navigate } from 'astro:transitions/client';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
@@ -222,7 +223,7 @@ export function mountSpiral(section: HTMLElement): { destroy(): void } {
     } else {
       const hit = pick();
       if (hit >= 0) {
-        if (hit === active) { const h = items[hit].href; if (h[0] === '#') location.hash = h; else location.href = h; }
+        if (hit === active) { const h = items[hit].href; if (h[0] === '#') location.hash = h; else navigate(h, { info: { card: true } }); }
         else step(hit - active);
       }
     }
