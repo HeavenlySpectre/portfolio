@@ -7,6 +7,7 @@ import Metrics from '../../components/case/Metrics.astro';
 import PipelineDiagram from '../../components/case/PipelineDiagram.astro';
 import PrevNext from '../../components/case/PrevNext.astro';
 import { parsePipeline } from '../../lib/pipeline';
+import { projectJsonLd } from '../../lib/jsonld';
 import { parseCaseBody, type Block } from '../../lib/case-body';
 
 interface Props { entry: CollectionEntry<'projects'>; prev: CollectionEntry<'projects'>; next: CollectionEntry<'projects'>; total: number }
@@ -25,14 +26,7 @@ const body = parseCaseBody(entry.body ?? '');
 const pipeline = parsePipeline(entry.body ?? '');
 const url = `https://kevinanugerah.dev/projects/${p.slug}/`;
 const pad2 = (n: number) => String(n).padStart(2, '0');
-const jsonLd = [
-  { '@context': 'https://schema.org', '@type': 'CreativeWork', name: p.title, description: p.seo_description, url, author: { '@type': 'Person', name: 'Kevin Anugerah Faza' }, keywords: p.stack.join(', ') },
-  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
-    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://kevinanugerah.dev/' },
-    { '@type': 'ListItem', position: 2, name: 'Projects', item: 'https://kevinanugerah.dev/#projects' },
-    { '@type': 'ListItem', position: 3, name: p.title, item: url },
-  ] },
-];
+const jsonLd = projectJsonLd(p);
 ---
 <Base
   title={`${p.title} | Kevin Anugerah Faza`}

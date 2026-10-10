@@ -1,0 +1,27 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base
+  title="404 | Kevin Anugerah Faza"
+  description="This page does not exist. Head back to the portfolio of Kevin Anugerah Faza, AI & Data Engineer."
+  canonical="https://kevinanugerah.dev/404/"
+  ogImage="https://kevinanugerah.dev/og/index.png"
+  jsonLd={[]}
+  home={false}
+>
+  <main class="nf">
+    <p class="nf-cmd"><b>kevin@portfolio</b>:~$ cd {'<'}this page{'>'}</p>
+    <h1>404</h1>
+    <p class="nf-err">bash: cd: no such file or directory</p>
+    <p><a href="/">cd ~</a></p>
+  </main>
+  <style>
+    .nf { min-height: 100svh; display: flex; flex-direction: column; justify-content: center; padding: 6rem var(--padx) 3rem; }
+    .nf-cmd { margin: 0; color: var(--muted); }
+    .nf-cmd b { color: var(--accent); font-weight: 500; }
+    .nf h1 { margin: 1rem 0 .5rem; font-size: clamp(4rem, 18vw, 10rem); line-height: 1; color: var(--accent); font-weight: 700; }
+    .nf-err { margin: 0 0 1.5rem; color: var(--muted); }
+    .nf a { display: inline-block; padding: .5rem 0; text-decoration: none; border-bottom: 1px solid var(--accent); }
+    .nf a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  </style>
+</Base>

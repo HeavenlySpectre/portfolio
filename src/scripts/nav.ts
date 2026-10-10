@@ -1,6 +1,7 @@
 import { initReveals } from './motion/reveal';
 import { onPage } from './lifecycle';
 import './transitions';
+import './legacy-anchors';
 
 const D = document.documentElement;
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));

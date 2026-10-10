@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://kevinanugerah.dev/sitemap.xml
+Sitemap: https://kevinanugerah.dev/sitemap-index.xml

@@ -11,13 +11,14 @@ import Organizations from '../components/Organizations.astro';
 import Toolkit from '../components/Toolkit.astro';
 import Education from '../components/Education.astro';
 import Contact from '../components/Contact.astro';
+import { homeJsonLd, HOME_TITLE, HOME_DESCRIPTION } from '../lib/jsonld';
 ---
 <Base
-  title="Kevin Anugerah Faza"
-  description="I build AI and data systems that work beyond the notebook."
+  title={HOME_TITLE}
+  description={HOME_DESCRIPTION}
   canonical="https://kevinanugerah.dev/"
-  ogImage="https://kevinanugerah.dev/og-image.png"
-  jsonLd={[]}
+  ogImage="https://kevinanugerah.dev/og/index.png"
+  jsonLd={homeJsonLd()}
 >
   <Loader />
   <main>
