@@ -27,6 +27,18 @@ test('every page has unique title and description, canonical, 1200x630 og image,
     const buf = await res.body();
     expect(buf.subarray(1, 4).toString()).toBe('PNG');
     expect([buf.readUInt32BE(16), buf.readUInt32BE(20)], og).toEqual([1200, 630]);
+    const meta = (sel: string) => page.locator(sel).getAttribute('content');
+    expect(await meta('meta[property="og:site_name"]')).toBe('Kevin Anugerah Faza');
+    expect(await meta('meta[property="og:type"]')).toBe('website');
+    expect(await meta('meta[property="og:image:type"]')).toBe('image/png');
+    expect(await meta('meta[property="og:image:width"]')).toBe('1200');
+    expect(await meta('meta[property="og:image:height"]')).toBe('630');
+    expect((await meta('meta[property="og:image:alt"]'))!.length, path).toBeGreaterThan(10);
+    expect(await meta('meta[name="twitter:card"]')).toBe('summary_large_image');
+    expect(await meta('meta[name="twitter:title"]')).toBe(title);
+    expect(await meta('meta[name="twitter:description"]')).toBe(desc);
+    expect(await meta('meta[name="twitter:image"]')).toBe(og);
+    expect(await page.locator('meta[name=robots]').count()).toBe(0);
     for (const s of await page.locator('script[type="application/ld+json"]').allTextContents()) expect(() => JSON.parse(s)).not.toThrow();
   }
 });
@@ -38,12 +50,18 @@ test('sitemap index lists the sitemap with 8 URLs', async ({ request }) => {
   let urls: string[] = [];
   for (const l of locs) urls = urls.concat([...(await (await request.get(new URL(l).pathname)).text()).matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]));
   expect(urls).toHaveLength(8);
+  expect(urls.some((u) => u.includes('404'))).toBe(false);
 });
 
 test('llms.txt lists all projects', async ({ request }) => {
   const t = await (await request.get('/llms.txt')).text();
   for (const s of SLUGS) expect(t).toContain(`https://kevinanugerah.dev/projects/${s}/`);
   expect(t).not.toMatch(/Surabaya/);
+  for (const h of ['## Experience', '## Projects', '## Organizations', '## Focus areas']) expect(t).toContain(h);
+  expect(t).toContain('AI Developer Intern, AI Top Trends');
+  expect(t).toContain('Lead Chapter, Google Developer Groups on Campus ITS');
+  expect(t).toContain('Retrieval-Augmented Generation');
+  expect(t).not.toMatch(/;|pass rate|I build/i);
 });
 
 test('robots points to the sitemap index', async ({ request }) => {
@@ -54,6 +72,8 @@ test('404 page renders in Kernel style with a 404 status', async ({ page }) => {
   const res = await page.goto('/no-such-page/');
   expect(res!.status()).toBe(404);
   await expect(page.locator('h1')).toContainText('404');
+  expect(await page.locator('meta[name=robots]').getAttribute('content')).toBe('noindex');
+  expect(await page.locator('link[rel=canonical]').count()).toBe(0);
   expect(await page.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe('rgb(9, 12, 10)');
   expect(await page.evaluate(() => getComputedStyle(document.body).fontFamily)).toContain('IBM Plex Mono');
 });

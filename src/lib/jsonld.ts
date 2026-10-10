@@ -5,6 +5,12 @@ export const PERSON_ID = `${SITE}/#person`;
 export const HOME_TITLE = 'Kevin Anugerah Faza — AI & Data Engineer';
 export const HOME_DESCRIPTION = 'Kevin Anugerah Faza is an AI and data engineer in Indonesia. I build AI and data systems that work beyond the notebook.';
 
+/** Focus areas from docs/content/skills.md, in site order */
+export const FOCUS_AREAS = [
+  'Retrieval-Augmented Generation', 'Large Language Models', 'Agentic AI', 'LLM Evaluation', 'Machine Learning', 'MLOps',
+  'Data Engineering', 'Natural Language Processing', 'Computer Vision', 'Deep Learning', 'Generative AI', 'LLM Fine-tuning',
+];
+
 export function homeJsonLd(): object[] {
   const ctx = 'https://schema.org';
   return [
@@ -25,10 +31,7 @@ export function homeJsonLd(): object[] {
         { '@type': 'Organization', name: 'Avalon AI' },
         { '@type': 'Organization', name: 'Cyber Security and Smart City Laboratory, Institut Teknologi Sepuluh Nopember' },
       ],
-      knowsAbout: [
-        'Retrieval-Augmented Generation', 'Large Language Models', 'Agentic AI', 'LLM Evaluation', 'Machine Learning', 'MLOps',
-        'Data Engineering', 'Natural Language Processing', 'Computer Vision', 'Deep Learning', 'Generative AI', 'LLM Fine-tuning',
-      ],
+      knowsAbout: FOCUS_AREAS,
       award: [
         '1st Place, Spring 2025 Regression Challenge (international Kaggle competition)',
         '3rd Place, FIT Competition, Data Science International Category',
