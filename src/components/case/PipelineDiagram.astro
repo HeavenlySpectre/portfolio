@@ -35,7 +35,7 @@ const fit = `@container pipe (min-width: ${Math.ceil(wide.width) + 16}px) { svg.
                   <rect class="halo" x="-3" y="-3" width={n.w + 6} height={n.h + 6} rx="3" />
                   <rect class="box" width={n.w} height={n.h} rx="2" />
                   <text class="l" text-anchor="middle">
-                    {n.lines.map((ln, i) => <tspan x={n.w / 2} y={y0 + i * LINE}>{ln}</tspan>)}
+                    {n.lines.map((ln, i) => <Fragment>{i > 0 && <tspan font-size="0"> </tspan>}<tspan x={n.w / 2} y={y0 + i * LINE}>{ln}</tspan></Fragment>)}
                   </text>
                 </g>
               );

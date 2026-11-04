@@ -40,7 +40,7 @@ html.menu-open { overflow: hidden; }
 }
 
 .foot { margin-top: clamp(4rem, 10vw, 7rem); padding: 1.3rem var(--padx) 1.6rem; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 1rem; font-size: .72rem; color: var(--muted); }
-.foot .x { color: var(--accent-dim); }
+.foot .x { color: #33905a; }
 
 /* motion helpers: the box is sized by the invisible final text (.fx-g) */
 .fx-g { visibility: hidden; }

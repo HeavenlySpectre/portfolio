@@ -492,7 +492,10 @@ export function mountGitGraph(section: HTMLElement): GitGraph {
     arm() {
       if (rm || dead) return;
       motionOn = true;
-      for (const li of [...cl.children] as El[]) { li.classList.add('pre'); typedRows.delete(li); }
+      const rows = [...cl.children] as El[];
+      for (const li of rows) { li.style.transition = 'none'; li.classList.add('pre'); typedRows.delete(li); } // hidden at once: a half-faded row is also a contrast failure for a scanner
+      void cl.offsetHeight;
+      for (const li of rows) li.style.transition = '';
       E1.max = -1;
       graph(); onScroll(); armE2();
       /* the replay starts when the pinned graph enters; from then on the playhead is a function of scroll alone */
