@@ -7,15 +7,13 @@ year: "2026"  # src: repo README timeline 30 Mar to 7 Jun 2026, commits 2026-04-
 visibility: Public team project
 summary: An AI career and hiring platform for candidates and companies, built as a five-person capstone project.
 metrics:
-  - value: "5"
-    label: Team members
-  - value: "10 of 81"
-    label: Commits by Kevin
+  - value: "9"
+    label: AI service files Kevin added (8 backend, 1 speech-to-text)
 stack: [React.js, Vite, Node.js, Express.js, PostgreSQL, FastAPI, Faster-Whisper, Google AI Studio, OpenRouter]
 links:
   - label: Repository
     url: https://github.com/nessorrowz/19MJ
-contribution: The README lists Kevin as Backend / AI Engineer. His 10 commits cover the AI layer. This includes the LLM gateway with provider fallback, CV review, career planner, interview sessions and screening evaluation services, the local speech-to-text service, AI caching and budget services, Swagger docs for the AI endpoints, and the forgot-password flow with email PIN.
+contribution: Kevin built the AI layer as Backend / AI Engineer. He wrote the LLM gateway with provider fallback, the CV review, career planner, interview session and screening evaluation services, the local speech-to-text service, and the AI caching and budget services. He also added Swagger docs for the AI endpoints and the forgot-password flow with email PIN.
 seo_description: 19MJ, an AI career development and hiring platform. Capstone team project with CV review, AI interviews and candidate screening.
 ---
 <!-- src for stack, links, category, visibility: projects.md. Team size and roles: repo README (5 members). Commits: GitHub API, 10 of 81 by HeavenlySpectre -->

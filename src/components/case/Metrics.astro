@@ -5,10 +5,11 @@ const { metrics } = Astro.props;
 // plain numbers count up, everything else (1st, 10 of 81, 15/15) prints in one step
 const counts = (v: string) => /^\d[\d.,]*%?$/.test(v);
 ---
+{metrics.length > 0 && (
 <section class="cs-sec" aria-labelledby="cs-numbers">
   <div class="cs-w">
     <h2 id="cs-numbers" data-fx="print">Numbers</h2>
-    <div class="cs-metrics">
+    <div class:list={['cs-metrics', metrics.length < 3 && 'cs-metrics--few']} style={`--n:${metrics.length}`}>
       {metrics.map((m, i) => (
         <div class="cs-metric">
           <div class="cs-mv" data-fx={counts(m.value) ? 'count' : 'print'} data-fx-delay={(0.05 * i).toFixed(2)}>{m.value}</div>
@@ -18,3 +19,4 @@ const counts = (v: string) => /^\d[\d.,]*%?$/.test(v);
     </div>
   </div>
 </section>
+)}

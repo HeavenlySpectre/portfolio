@@ -7,17 +7,15 @@ year: "2026"  # src: repo created 2026-06-18 (GitHub API)
 visibility: Public team project
 summary: A todo list where each task lives in a Solidity smart contract and is managed from a React app through MetaMask.
 metrics:
-  - value: "3"
-    label: Team members
-  - value: "7 of 20"
-    label: Commits by Kevin
+  - value: "9"
+    label: Contract tests Kevin added
 stack: [Solidity, Hardhat, React, Vite, Tailwind CSS, ethers.js, MetaMask, Sepolia]
 links:
   - label: Repository
     url: https://github.com/Trenttzzz/todo-list-dapp-project
   - label: Live demo
     url: https://todo-list-dapp-project.vercel.app
-contribution: The README lists Kevin for Web3 integration and testing. His main commit added the wallet and contract hooks, the contract helper, the frontend wiring, the Hardhat config, the deploy script and the tests. A later commit expanded the tests, and its message says coverage over 95%.
+contribution: Kevin built the Web3 integration and the tests. He wrote the wallet and contract hooks, the contract helper, the frontend wiring, the Hardhat config and the deploy script. He then expanded the tests. His commit message says coverage over 95%.
 seo_description: Blockchain todo list dApp with a Solidity contract, React frontend and MetaMask. Tasks are stored on-chain and deployed to Sepolia.
 ---
 <!-- src for stack, links, contribution: repo README todo-list-dapp, GitHub API (contributors 12 + 7 + 1 = 20 commits), Kevin's commits 038c6ee 2642da0 -->

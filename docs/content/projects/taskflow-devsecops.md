@@ -9,13 +9,11 @@ summary: A CI/CD pipeline for a Go API that explains failed builds using similar
 metrics:
   - value: "15/15"
     label: Top-3 retrieval accuracy on controlled failure scenarios
-  - value: "22 of 63"
-    label: Commits by Kevin, the top contributor
 stack: [Go, GitHub Actions, Docker, GHCR, govulncheck, gosec, Python, Gemini embeddings, Telegram]
 links:
   - label: Repository
     url: https://github.com/Trenttzzz/taskflow-cicd-devops
-contribution: Top contributor with 22 of 63 commits. Added the AI failure intelligence pipeline in one large commit (workflow changes, log cleaning, embedding index, similar-failure retrieval, report generator, knowledge base and controlled-failure evaluation), then fixed log collection and report reliability. Earlier added the security scan job, the project report, and the Kubernetes manifests with deploy workflow and incident docs.
+contribution: Kevin built the AI failure intelligence pipeline. It covers workflow changes, log cleaning, the embedding index, similar-failure retrieval, the report generator, the knowledge base and the controlled-failure evaluation. He then fixed log collection and report reliability. Earlier he added the security scan job, the project report, and the Kubernetes manifests with the deploy workflow and incident docs.
 seo_description: TaskFlow DevSecOps project. A Go API pipeline on GitHub Actions that uses embedding retrieval and an LLM to explain failed builds.
 ---
 <!-- src for stack, links, metrics, contribution: repo README taskflow, GitHub contributors API (22 of 63), Kevin's commits f973c38 41ba79a 3cccbef 73fe1e9 b3b4245 038d0d3 58a0f03 -->

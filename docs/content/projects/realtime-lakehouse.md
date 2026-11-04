@@ -9,13 +9,11 @@ summary: A containerized data platform from Kafka ingestion to medallion layers,
 metrics:
   - value: "3"
     label: Medallion layers (Bronze, Silver, Gold)
-  - value: "3"
-    label: Team members
 stack: [Apache Kafka, Apache Spark, PySpark, MinIO, MLflow, PostgreSQL, FastAPI, JupyterLab, Docker, Docker Compose]
 links:
   - label: Repository
     url: https://github.com/Trenttzzz/fp-bigdata-01
-contribution: Built the pipeline end to end within a 3-person team in commit 6e86e7d (+1846/−511). It contains the Spark streaming ETL job, the batch training engine, the MLflow service Dockerfile, a rewrite of the Docker Compose orchestration, a rewrite of the Kafka producer, both pipeline notebooks and the README.
+contribution: Kevin built the pipeline end to end. He wrote the Spark streaming ETL job, the batch training engine, the MLflow service Dockerfile, a rewrite of the Docker Compose orchestration and a rewrite of the Kafka producer. He also wrote both pipeline notebooks and the README.
 seo_description: A containerized real-time lakehouse with Kafka, Spark, MinIO and MLflow. Medallion layers, automated training and an inference API.
 ---
 <!-- src for stack, links, category, visibility: projects.md. Contribution: Kevin's commit 6e86e7d in the repo, stats from GitHub API. Team size 3: fp-bigdata-01 contributors list (dzakyahnaf, athallabf, HeavenlySpectre) and git log. Course or goal is not stated in the repo -->
