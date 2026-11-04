@@ -354,7 +354,7 @@ export function mountSpiral(section: HTMLElement): { destroy(): void } {
     raf = 0;
     if (destroyed || !shouldRun()) return;
     const g = gl!;
-    const dt = Math.min(0.05, (now - g.last) / 1000); g.last = now;
+    const dt = clamp((now - g.last) / 1000, 0, 0.05); g.last = now; // a stale rAF timestamp can precede last: a negative dt blows exp() up to NaN
     const time = now / 1000;
     pos += (goal - pos) * (1 - Math.exp(-dt * 5.2));
     if (Math.abs(goal - pos) < 1e-4) pos = goal;
