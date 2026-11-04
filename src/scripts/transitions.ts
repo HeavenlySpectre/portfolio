@@ -9,7 +9,7 @@
 declare global { interface Window { __kvTx?: { kind: Kind; cmd: string; ms?: number; done: boolean } } }
 
 type Kind = 'card' | 'cd' | 'none';
-interface Tx { kind: Kind; cmd: string; t0: number; ov: Overlay | null; loaded: boolean }
+interface Tx { kind: Kind; cmd: string; t0: number; ov: Overlay | null; loaded: boolean; named?: HTMLElement }
 interface Overlay { covered: Promise<void>; uncover(): Promise<void>; remove(): void }
 interface PrepEvent extends Event {
   from: URL; to: URL; navigationType: 'push' | 'replace' | 'traverse'; sourceElement?: Element; info?: { card?: boolean }; loader: () => Promise<void>;
@@ -51,6 +51,7 @@ function makeOverlay(text: string): Overlay {
   const done = (anims: Animation[]) => Promise.all(anims.map((a) => a.finished.catch(() => undefined))).then(() => undefined);
   let gone = false;
   const covered = (async () => {
+    if (document.hidden) { typed.textContent = text; return; } // a background tab gets no frames: no show, the navigation goes on
     const t0 = performance.now();
     await new Promise<void>((res) => {
       (function f(now: number) {
@@ -70,6 +71,7 @@ function makeOverlay(text: string): Overlay {
       if (gone) return;
       await covered;
       if (gone) return;
+      if (document.hidden) { this.remove(); return; }
       bars.forEach((b) => { b.style.transformOrigin = '50% 100%'; });
       const out = bars.map((b, i) => b.animate([{ transform: 'scaleY(1)' }, { transform: 'scaleY(0)' }], { duration: STEP, delay: (i / ROWS) * UNCOVER, fill: 'forwards', easing: 'linear' }));
       const fade = bar.animate([{ opacity: 1 }, { opacity: 0 }], { duration: UNCOVER, delay: 60, fill: 'forwards' });
@@ -81,9 +83,15 @@ function makeOverlay(text: string): Overlay {
 }
 
 /* ---------------------------------------------------------------- helpers */
-function finish(t: Tx): void {
+function release(t: Tx): void {
   t.ov?.remove();
-  if (cur === t) cur = null;
+  t.named?.style.removeProperty('view-transition-name');
+  t.named = undefined;
+}
+function finish(t: Tx): void {
+  release(t);
+  if (cur !== t) return; // superseded: the newer navigation owns the state and the waiters
+  cur = null;
   waiters.splice(0).forEach((r) => r());
   if (E2E && window.__kvTx) { window.__kvTx.ms = Math.round(performance.now() - t.t0); window.__kvTx.done = true; }
 }
@@ -98,29 +106,30 @@ function pick(e: PrepEvent): { kind: Kind; cmd: string } {
 }
 
 /** The grid card already carries the name. The spiral has no card in the page, so its active project panel takes the name for the move. */
-function nameSource(e: PrepEvent, slug: string): void {
+function nameSource(e: PrepEvent, slug: string): HTMLElement | undefined {
   const src = e.sourceElement instanceof Element ? e.sourceElement : null;
-  if (src?.closest('.sp-card')) return;
+  if (src?.closest('.sp-card')) return undefined;
   const item = src?.closest<HTMLElement>('.sp-item') ?? document.querySelector<HTMLElement>('.sp-item.is-active');
   item?.style.setProperty('view-transition-name', 'card-' + slug);
+  return item ?? undefined;
 }
 
 /* ---------------------------------------------------------------- router seams */
 document.addEventListener('astro:before-preparation', (ev) => {
   const e = ev as PrepEvent;
-  cur?.ov?.remove(); // a newer navigation takes over
+  if (cur) release(cur); // a newer navigation takes over
   const { kind, cmd } = pick(e);
   const t: Tx = { kind, cmd, t0: performance.now(), ov: null, loaded: false };
   cur = t;
   if (E2E) window.__kvTx = { kind, cmd, done: false };
-  if (kind === 'card') nameSource(e, CASE.exec(e.to.pathname)![1]);
+  if (kind === 'card') t.named = nameSource(e, CASE.exec(e.to.pathname)![1]);
   if (kind === 'cd') {
     const ov = (t.ov = makeOverlay(cmd));
     const load = e.loader;
     // fetching starts at once and overlaps the typing and the cover
     e.loader = async () => { await Promise.all([ov.covered, load()]); };
-    setTimeout(() => { if (cur === t && !t.loaded) finish(t); }, 6000); // never leave the screen covered
   }
+  setTimeout(() => { if (cur === t && (kind !== 'cd' || !t.loaded)) finish(t); }, 6000); // an aborted navigation never leaves the screen covered or the state set
 });
 
 document.addEventListener('astro:before-swap', (ev) => {
