@@ -3,7 +3,7 @@ import type { Project } from './project-schema';
 export const SITE = 'https://kevinanugerah.dev';
 export const PERSON_ID = `${SITE}/#person`;
 export const HOME_TITLE = 'Kevin Anugerah Faza — AI & Data Engineer';
-export const HOME_DESCRIPTION = 'Kevin Anugerah Faza is an AI and data engineer in Indonesia. I build AI and data systems that work beyond the notebook.';
+export const HOME_DESCRIPTION = 'I am Kevin Anugerah Faza, an AI and data engineer in Indonesia. I build AI and data systems that work beyond the notebook.';
 
 /** Focus areas from docs/content/skills.md, in site order */
 export const FOCUS_AREAS = [
@@ -22,7 +22,7 @@ export function homeJsonLd(): object[] {
     {
       '@context': ctx, '@type': 'Person', '@id': PERSON_ID,
       name: 'Kevin Anugerah Faza', alternateName: 'Kevin Anugerah', jobTitle: 'AI & Data Engineer',
-      description: 'Kevin Anugerah Faza is an AI and data engineer in Indonesia. He builds AI and data systems that work beyond the notebook.',
+      description: 'I am Kevin Anugerah Faza, an AI and data engineer in Indonesia. I build AI and data systems that work beyond the notebook.',
       url: `${SITE}/`, email: 'mailto:kevinanugerahf@gmail.com',
       address: { '@type': 'PostalAddress', addressCountry: 'ID' },
       alumniOf: { '@type': 'CollegeOrUniversity', name: 'Institut Teknologi Sepuluh Nopember', sameAs: 'https://www.its.ac.id/' },

@@ -4,7 +4,7 @@ import { AMB, FONT, TH, clamp, hx, type View } from './shared';
    Sentences: [token, p(chosen), 5 alternatives]. */
 export type Tok = [string, number, string[]];
 export const SENT: Tok[][] = [
-  [['Kevin', .41, ['He', 'Engineer', 'I', 'Data', 'A']], ['builds', .44, ['designs', 'ships', 'teaches', 'writes', 'is']], ['AI', .36, ['data', 'RAG', 'ML', 'search', 'pipelines']],
+  [['I', .41, ['We', 'This', 'My', 'Our', 'One']], ['build', .44, ['design', 'ship', 'teach', 'write', 'am']], ['AI', .36, ['data', 'RAG', 'ML', 'search', 'pipelines']],
     ['and', .52, ['systems', ',', '/', '&', 'for']], ['data', .47, ['ML', 'search', 'analytics', 'backend', 'SQL']], ['systems', .58, ['pipelines', 'platforms', 'products', 'tools', 'apps']], ['.', .61, [',', '—', 'that', 'for', 'in']]],
   [['Efficient', .34, ['Fast', 'Lean', 'Robust', 'Scalable', 'Reliable']], ['by', .52, ['in', 'at', 'through', 'and', 'with']], ['design', .47, ['default', 'nature', 'choice', 'intent', 'necessity']], [',', .58, ['.', '—', 'and', ':', 'but']],
     ['effective', .31, ['useful', 'reliable', 'robust', 'practical', 'proven']], ['in', .55, ['at', 'by', 'for', 'when', 'under']], ['practice', .49, ['production', 'use', 'theory', 'action', 'context']], ['.', .66, [',', '—', '!', '?', 'too']]],

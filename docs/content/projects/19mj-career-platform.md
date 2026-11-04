@@ -8,12 +8,12 @@ visibility: Public team project
 summary: An AI career and hiring platform for candidates and companies, built as a capstone project.
 metrics:
   - value: "9"
-    label: AI service files Kevin added (8 backend, 1 speech-to-text)
+    label: AI service files I added (8 backend, 1 speech-to-text)
 stack: [React.js, Vite, Node.js, Express.js, PostgreSQL, FastAPI, Faster-Whisper, Google AI Studio, OpenRouter]
 links:
   - label: Repository
     url: https://github.com/nessorrowz/19MJ
-contribution: Kevin built the AI layer as Backend / AI Engineer. He wrote the LLM gateway with provider fallback, the CV review, career planner, interview session and screening evaluation services, the local speech-to-text service, and the AI caching and budget services. He also added Swagger docs for the AI endpoints and the forgot-password flow with email PIN.
+contribution: I built the AI layer as Backend / AI Engineer. I wrote the LLM gateway with provider fallback, the CV review, career planner, interview session and screening evaluation services, the local speech-to-text service, and the AI caching and budget services. I also added Swagger docs for the AI endpoints and the forgot-password flow with email PIN.
 seo_description: 19MJ, an AI career development and hiring platform. Capstone team project with CV review, AI interviews and candidate screening.
 ---
 <!-- src for stack, links, category, visibility: projects.md. Team size and roles: repo README (5 members). Commits: GitHub API, 10 of 81 by HeavenlySpectre -->

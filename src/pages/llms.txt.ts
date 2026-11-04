@@ -14,7 +14,7 @@ export const GET: APIRoute = async () => {
   const lines = [
     '# Kevin Anugerah Faza',
     '',
-    `> Kevin Anugerah Faza (also known as Kevin Anugerah) is an AI & Data Engineer based in Indonesia. He builds AI and data systems that work beyond the notebook, with a focus on retrieval-augmented generation (RAG), large language models, agentic AI and LLM evaluation. He studies ${education.program} (${education.degree}) at ${education.school} (ITS), ${education.period}, GPA ${education.gpa.replace(' / ', '/')}.`,
+    `> I am Kevin Anugerah Faza (also known as Kevin Anugerah), an AI & Data Engineer based in Indonesia. I build AI and data systems that work beyond the notebook, with a focus on retrieval-augmented generation (RAG), large language models, agentic AI and LLM evaluation. I study ${education.program} (${education.degree}) at ${education.school} (ITS), ${education.period}, GPA ${education.gpa.replace(' / ', '/')}.`,
     '',
     `- Website: ${SITE}/`,
     '- Email: kevinanugerahf@gmail.com',

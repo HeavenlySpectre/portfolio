@@ -13,7 +13,7 @@ stack: [Apache Kafka, Apache Spark, PySpark, MinIO, MLflow, PostgreSQL, FastAPI,
 links:
   - label: Repository
     url: https://github.com/Trenttzzz/fp-bigdata-01
-contribution: Kevin built the pipeline end to end. He wrote the Spark streaming ETL job, the batch training engine, the MLflow service Dockerfile, a rewrite of the Docker Compose orchestration and a rewrite of the Kafka producer. He also wrote both pipeline notebooks and the README.
+contribution: I built the pipeline end to end. I wrote the Spark streaming ETL job, the batch training engine, the MLflow service Dockerfile, a rewrite of the Docker Compose orchestration and a rewrite of the Kafka producer. I also wrote both pipeline notebooks and the README.
 seo_description: A containerized real-time lakehouse with Kafka, Spark, MinIO and MLflow. Medallion layers, automated training and an inference API.
 ---
 <!-- src for stack, links, category, visibility: projects.md. Contribution: Kevin's commit 6e86e7d in the repo, stats from GitHub API. Team size 3: fp-bigdata-01 contributors list (dzakyahnaf, athallabf, HeavenlySpectre) and git log. Course or goal is not stated in the repo -->
