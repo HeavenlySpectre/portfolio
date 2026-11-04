@@ -5,7 +5,7 @@ order: 5
 category: AI Engineering · Full-Stack Application
 year: "2026"  # src: repo README timeline 30 Mar to 7 Jun 2026, commits 2026-04-07 to 2026-06-25
 visibility: Public team project
-summary: An AI career and hiring platform for candidates and companies, built as a five-person capstone project.
+summary: An AI career and hiring platform for candidates and companies, built as a capstone project.
 metrics:
   - value: "9"
     label: AI service files Kevin added (8 backend, 1 speech-to-text)
@@ -51,5 +51,4 @@ A React frontend talks to a Node and Express backend with PostgreSQL. The backen
 - Model output is parsed as strict JSON and validated before it is stored, so only well-formed results reach the database. <!-- src: 19MJ learn.md section 12, BE/src/ai/services/aiOutputService.js, validators/aiResultValidators.js. The repo gives no reason for ordering Google AI Studio before OpenRouter -->
 
 ## Results
-- Public repository with a five-person team and a 70-day capstone timeline. <!-- src: repo README -->
 - The documented setup runs locally with a smoke-test guide. No public deployment is listed. <!-- src: 19MJ README (Deployment: TBD), BE/docs/ai-smoke-tests.md, learn.md local deployment diagram. No user, latency or accuracy numbers exist in the repo -->
